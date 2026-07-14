@@ -7,11 +7,11 @@ import java.nio.file.Path;
 
 @Data
 @Builder
-public class Model {
+public class AnalysisConfig {
     boolean hasHelp;
-    String directory;
-    String minLength;
-    String top;
-    String output;
-    String stopWords;
+    Path directory
+    int minLength
+    int top
+    Path output
+    Path stopWords
 }
