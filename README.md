@@ -26,7 +26,8 @@
 * Если отдельный файл невозможно прочитать, он пропускается, а информация об ошибке добавляется в результат.
 * При отсутствии подходящих слов приложение выводит пустой результат.
 * При записи в JSON родительская директория должна уже существовать. Существующий файл результата перезаписывается.
-
+* Минимальная длина слова и количество слов в результате должны быть 1 или больше. 
+  
 ## Сборка
 
 ```bash
@@ -38,10 +39,7 @@ mvn clean package
 ## Запуск
 
 ```bash
-java -jar target/text-analyzer.jar \
-  --dir=./texts \
-  --min-length=5 \
-  --top=10
+java -jar target/text-analyzer.jar --dir=./texts --min-length=5 --top=10
 ```
 
 ### Параметры
@@ -60,31 +58,19 @@ java -jar target/text-analyzer.jar \
 Вывод результата в консоль:
 
 ```bash
-java -jar target/text-analyzer.jar \
-  --dir=./texts \
-  --min-length=5 \
-  --top=10
+java -jar target/text-analyzer.jar --dir=./texts --min-length=3 --top=5
 ```
 
 С использованием стоп-слов:
 
 ```bash
-java -jar target/text-analyzer.jar \
-  --dir=./texts \
-  --min-length=5 \
-  --top=10 \
-  --stopwords=./stop.txt
+java -jar target/text-analyzer.jar --dir=./texts --min-length=5 --top=10 --stopwords=./stop.txt
 ```
 
 С сохранением результата в JSON:
 
 ```bash
-java -jar target/text-analyzer.jar \
-  --dir=./texts \
-  --min-length=5 \
-  --top=10 \
-  --stopwords=./stop.txt \
-  --output=./results.json
+java -jar target/text-analyzer.jar --dir=./texts --min-length=5 --top=10 --stopwords=./stop.txt --output=./results.json
 ```
 
 Просмотр справки:
