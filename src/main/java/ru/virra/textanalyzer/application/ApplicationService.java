@@ -6,6 +6,7 @@ import ru.virra.textanalyzer.analyzer.Analise;
 import ru.virra.textanalyzer.analyzer.Analiseres;
 import ru.virra.textanalyzer.cli.AnalysisConfig;
 import ru.virra.textanalyzer.output.ConsoleResultWriter;
+import ru.virra.textanalyzer.output.JsonResultWriter;
 
 import java.util.List;
 import java.util.Map;
@@ -18,6 +19,7 @@ public class ApplicationService {
     private final Analiseres analyzer;
     private final StopWords stopWords;
     private final ConsoleResultWriter consoleResultWriter;
+    private final JsonResultWriter jsonResultWriter;
 
     public void go(AnalysisConfig config) {
 
@@ -32,6 +34,10 @@ public class ApplicationService {
                 .map(entry -> new WordCount(entry.getKey(), entry.getValue()))
                 .toList();
 
-        consoleResultWriter.write(resultlist);
+        if (config.getOutput() != null) {
+            jsonResultWriter.write(resultlist, config.getOutput());
+        } else {
+            consoleResultWriter.write(resultlist);
+        }
     }
 }
