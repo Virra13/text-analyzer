@@ -8,10 +8,9 @@ import java.nio.file.Path;
 @Data
 @Builder
 public class AnalysisConfig {
-    boolean hasHelp;
-    Path directory
-    int minLength
-    int top
-    Path output
-    Path stopWords
+    Path directory;
+    int minLength;
+    int top;
+    Path output;
+    Path stopWords;
 }
