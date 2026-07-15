@@ -1,11 +1,17 @@
 package ru.virra.textanalyzer.application;
 
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 
 import java.nio.file.Path;
 
-@Data
+/**
+ * Конфигурация запуска анализа текстов.
+ *
+ * <p>Содержит параметры, полученные и проверенные при разборе
+ * аргументов командной строки.</p>
+ */
+@Getter
 @Builder
 public class AnalysisConfig {
     Path directory;

@@ -9,9 +9,21 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.stream.Collectors;
 
+/**
+ * Выводит справочную информацию о параметрах запуска приложения.
+ *
+ * <p>Текст справки загружается из ресурса {@code help.txt}
+ * в кодировке UTF-8.</p>
+ */
 @Component
 public class HelpPrinter {
 
+    /**
+     * Выводит справочную информацию о параметрах запуска приложения.
+     *
+     * <p>Текст справки загружается из ресурса {@code help.txt}
+     * в кодировке UTF-8.</p>
+     */
     public void print() {
 
         try (InputStream input = HelpPrinter.class.getClassLoader().getResourceAsStream("help.txt")) {

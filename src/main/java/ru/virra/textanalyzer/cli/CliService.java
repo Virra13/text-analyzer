@@ -1,5 +1,6 @@
 package ru.virra.textanalyzer.cli;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.stereotype.Component;
 import ru.virra.textanalyzer.exception.InvalidArgumentsException;
@@ -9,6 +10,14 @@ import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.util.List;
 
+/**
+ * Разбирает и проверяет аргументы командной строки.
+ *
+ * <p>Преобразует строковые значения параметров в типизированный
+ * объект {@link AnalysisConfig}. Проверяет наличие обязательных
+ * параметров, количество значений, формат путей и числовых значений.</p>
+ */
+@Slf4j
 @Component
 public class CliService {
 
@@ -18,14 +27,25 @@ public class CliService {
     private static final String OUTPUT = "output";
     private static final String STOPWORDS = "stopwords";
 
+    /**
+     * Разбирает параметры запуска и формирует конфигурацию анализа.
+     *
+     * @param args аргументы командной строки
+     * @return типизированная конфигурация анализа
+     * @throws InvalidArgumentsException если обязательный параметр отсутствует,
+     *                                   имеет неверное количество значений,
+     *                                   пустое значение или неверный формат
+     */
     public AnalysisConfig parseArgs(ApplicationArguments args) {
 
+        log.debug("Parsing command-line arguments");
         Path dir = getRequiredPath(args, DIR);
         Path output = getOptionalPath(args, OUTPUT);
         Path stop = getOptionalPath(args, STOPWORDS);
         int minLength = getPositiveInt(args, MIN_LENGTH);
         int top = getPositiveInt(args, TOP);
 
+        log.debug("Command-line arguments parsed successfully");
         return AnalysisConfig.builder()
                 .directory(dir)
                 .minLength(minLength)
@@ -33,7 +53,7 @@ public class CliService {
                 .output(output)
                 .stopWords(stop)
                 .build();
-    }
+        }
 
     private Path getRequiredPath(ApplicationArguments args, String name) {
         String value = getValue(args, name);
@@ -78,29 +98,29 @@ public class CliService {
         return value;
     }
 
-    private Path toPath(String s, String name) {
+    private Path toPath(String value, String name) {
         Path path;
         try {
-            path = Path.of(s);
+            path = Path.of(value);
         } catch (InvalidPathException e) {
-            throw new InvalidArgumentsException("Error: option '--" + name + "' contains an invalid path: '" + s + "'.");
+            throw new InvalidArgumentsException("Error: option '--" + name + "' contains an invalid path: '" + value + "'.");
         }
         return path;
     }
 
-    private int toInt(String s, String name) {
+    private int toInt(String value, String name) {
         int i;
         try {
-            i = Integer.parseInt(s);
+            i = Integer.parseInt(value );
         } catch (NumberFormatException e) {
-            throw new InvalidArgumentsException("Error: option '--" + name + "' must be an integer, but got: '" + s + "'.");
+            throw new InvalidArgumentsException("Error: option '--" + name + "' must be an integer, but got: '" + value + "'.");
         }
         return i;
     }
 
-    private void validatePositive(int i, String name) {
-        if (i < 1) {
-            throw new InvalidArgumentsException("Error: option '--" + name + "' must be greater than 0, but got: '" + i + "'.");
+    private void validatePositive(int value, String name) {
+        if (value < 1) {
+            throw new InvalidArgumentsException("Error: option '--" + name + "' must be greater than 0, but got: '" + value + "'.");
         }
     }
 }
