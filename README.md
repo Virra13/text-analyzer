@@ -118,5 +118,11 @@ java -jar target/text-analyzer.jar --help
   ]
 }
 ```
-* SLF4J / Logback
+## Технологии
+
+* Java 21
+* Spring Boot 4.1
+* Maven
+* Jackson
+* SLF4J 
 * Lombok
