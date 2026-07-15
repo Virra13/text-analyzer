@@ -1,12 +1,14 @@
 package ru.virra.textanalyzer.analyzer;
 
+import org.springframework.stereotype.Component;
+
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Analiseres implements Analiserd {
+@Component
+public class Analiseres  {
 
-    @Override
     public Map<String, Integer> analise(Iterable<String> texts, Set<String> stopWords, int minLength) {
 
         Map<String, Integer> result = new HashMap<>();
@@ -21,10 +23,8 @@ public class Analiseres implements Analiserd {
                 if (word.length() >= minLength && !stopWords.contains(word)) {
                     result.merge(word, 1, Integer::sum);
                 }
-
             }
         }
-
         return result;
     }
 }

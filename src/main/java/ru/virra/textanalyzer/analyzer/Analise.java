@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 @Component
-public interface Analiserd {
+public interface Analise {
 
     Map<String, Integer> analise(Iterable<String> texts, Set<String> stopWords, int minLength);
 

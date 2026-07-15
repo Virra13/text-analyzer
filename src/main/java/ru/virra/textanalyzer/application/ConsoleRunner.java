@@ -29,6 +29,7 @@ public class ConsoleRunner implements ApplicationRunner {
             AnalysisConfig config = cliService.parseArgs(args);
             applicationService.go(config);
 
+
         } catch (InvalidArgumentsException e) {
             System.err.println(e.getMessage());
             System.err.println("Use --help to see available options.");
