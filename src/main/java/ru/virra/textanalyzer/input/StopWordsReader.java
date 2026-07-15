@@ -1,7 +1,7 @@
-package ru.virra.textanalyzer.application;
+package ru.virra.textanalyzer.input;
 
 import org.springframework.stereotype.Component;
-import ru.virra.textanalyzer.InvalidArgumentsException;
+import ru.virra.textanalyzer.exception.InvalidArgumentsException;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -12,7 +12,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Component
-public class StopWords {
+public class StopWordsReader {
 
     private final Pattern pattern = Pattern.compile("\\p{L}+(?:[-_'’]\\p{L}+)*");
 

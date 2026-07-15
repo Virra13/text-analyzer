@@ -1,4 +1,4 @@
-package ru.virra.textanalyzer;
+package ru.virra.textanalyzer.exception;
 
 public class InvalidArgumentsException extends RuntimeException {
 

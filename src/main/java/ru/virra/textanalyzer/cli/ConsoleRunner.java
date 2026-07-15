@@ -1,13 +1,12 @@
-package ru.virra.textanalyzer.application;
+package ru.virra.textanalyzer.cli;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
-import ru.virra.textanalyzer.InvalidArgumentsException;
-import ru.virra.textanalyzer.cli.AnalysisConfig;
-import ru.virra.textanalyzer.cli.CliService;
-import ru.virra.textanalyzer.cli.HelpPrinter;
+import ru.virra.textanalyzer.exception.InvalidArgumentsException;
+import ru.virra.textanalyzer.application.AnalysisConfig;
+import ru.virra.textanalyzer.application.ApplicationService;
 
 @RequiredArgsConstructor
 @Component

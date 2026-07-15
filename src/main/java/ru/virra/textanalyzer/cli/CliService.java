@@ -2,7 +2,8 @@ package ru.virra.textanalyzer.cli;
 
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.stereotype.Component;
-import ru.virra.textanalyzer.InvalidArgumentsException;
+import ru.virra.textanalyzer.exception.InvalidArgumentsException;
+import ru.virra.textanalyzer.application.AnalysisConfig;
 
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;

@@ -2,8 +2,8 @@ package ru.virra.textanalyzer.output;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import ru.virra.textanalyzer.InvalidArgumentsException;
-import ru.virra.textanalyzer.application.WordCount;
+import ru.virra.textanalyzer.exception.InvalidArgumentsException;
+import ru.virra.textanalyzer.model.WordCount;
 import tools.jackson.databind.ObjectMapper;
 
 import java.io.File;

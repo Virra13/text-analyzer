@@ -1,4 +1,4 @@
-package ru.virra.textanalyzer.cli;
+package ru.virra.textanalyzer.application;
 
 import lombok.Builder;
 import lombok.Data;

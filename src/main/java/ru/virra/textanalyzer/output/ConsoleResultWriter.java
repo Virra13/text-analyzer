@@ -1,7 +1,7 @@
 package ru.virra.textanalyzer.output;
 
 import org.springframework.stereotype.Component;
-import ru.virra.textanalyzer.application.WordCount;
+import ru.virra.textanalyzer.model.WordCount;
 
 import java.util.List;
 

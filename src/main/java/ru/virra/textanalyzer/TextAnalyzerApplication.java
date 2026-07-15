@@ -8,7 +8,5 @@ public class TextAnalyzerApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(TextAnalyzerApplication.class, args);
-
     }
-
 }

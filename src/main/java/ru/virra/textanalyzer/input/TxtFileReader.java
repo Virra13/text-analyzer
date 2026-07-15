@@ -1,7 +1,7 @@
-package ru.virra.textanalyzer.application;
+package ru.virra.textanalyzer.input;
 
 import org.springframework.stereotype.Component;
-import ru.virra.textanalyzer.InvalidArgumentsException;
+import ru.virra.textanalyzer.exception.InvalidArgumentsException;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 @Component
-public class TxtReader {
+public class TxtFileReader implements TextReader {
 
     public ReadResult read(Path path){
 

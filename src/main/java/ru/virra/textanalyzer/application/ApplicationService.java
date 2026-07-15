@@ -2,9 +2,12 @@ package ru.virra.textanalyzer.application;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import ru.virra.textanalyzer.analyzer.Analise;
-import ru.virra.textanalyzer.analyzer.Analiseres;
-import ru.virra.textanalyzer.cli.AnalysisConfig;
+import ru.virra.textanalyzer.analyzer.Analyzer;
+import ru.virra.textanalyzer.input.ReadResult;
+import ru.virra.textanalyzer.input.StopWordsReader;
+import ru.virra.textanalyzer.input.TextReader;
+import ru.virra.textanalyzer.input.TxtFileReader;
+import ru.virra.textanalyzer.model.WordCount;
 import ru.virra.textanalyzer.output.ConsoleResultWriter;
 import ru.virra.textanalyzer.output.JsonResultWriter;
 
@@ -15,16 +18,16 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ApplicationService {
 
-    private final TxtReader txtReader;
-    private final Analiseres analyzer;
-    private final StopWords stopWords;
+    private final TextReader txtReader;
+    private final Analyzer analyzer;
+    private final StopWordsReader stopWordsReader;
     private final ConsoleResultWriter consoleResultWriter;
     private final JsonResultWriter jsonResultWriter;
 
     public void go(AnalysisConfig config) {
 
         ReadResult readResult = txtReader.read(config.getDirectory());
-        Map<String, Integer> result = analyzer.analise(readResult.texts().values(), stopWords.loadStopWords(config.getStopWords()), config.getMinLength());
+        Map<String, Integer> result = analyzer.analize(readResult.texts().values(), stopWordsReader.loadStopWords(config.getStopWords()), config.getMinLength());
 
         List<WordCount> resultlist = result.entrySet().stream()
                 .sorted(Map.Entry.<String, Integer>comparingByValue()

@@ -2,14 +2,17 @@ package ru.virra.textanalyzer.analyzer;
 
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Component
-public class Analiseres  {
+public class RegexTextAnalyzer implements Analyzer{
 
-    public Map<String, Integer> analise(Iterable<String> texts, Set<String> stopWords, int minLength) {
+    public Map<String, Integer> analize(Iterable<String> texts, Set<String> stopWords, int minLength) {
 
         Map<String, Integer> result = new HashMap<>();
         Pattern pattern = Pattern.compile("\\p{L}+(?:[-_'’]\\p{L}+)*");
@@ -28,3 +31,4 @@ public class Analiseres  {
         return result;
     }
 }
+
