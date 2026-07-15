@@ -1,0 +1,24 @@
+TEXT ANALYZER
+Usage:
+
+  java -jar text-analyzer.jar --dir=<path> --min-length=<number> --top=<number> [--stopwords=<path>] [--output=<path>]
+
+Options:
+
+  --dir=<path>
+      Directory containing .txt files. (required)
+
+  --min-length=<number>
+      Minimum word length. Integer > 0. (required)
+
+  --top=<number>
+      Number of most frequent words to output. Integer > 0. (required)
+
+  --stopwords=<path>
+      File containing stop words. (optional)
+
+  --output=<path>
+      Output JSON file. If omitted, the result is printed to the console. (optional)
+
+  --help
+      Show this help message.
