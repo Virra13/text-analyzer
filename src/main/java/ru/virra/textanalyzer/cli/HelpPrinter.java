@@ -24,8 +24,7 @@ public class HelpPrinter {
                     .collect(Collectors.joining("\n"));
 
             System.out.println(text);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             System.err.println("Failed to read help file: " + e.getMessage());
         }
     }

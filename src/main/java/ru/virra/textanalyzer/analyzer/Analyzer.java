@@ -5,6 +5,6 @@ import java.util.Set;
 
 public interface Analyzer {
 
-    public Map<String, Integer> analize(Iterable<String> texts, Set<String> stopWords, int minLength);
+    Map<String, Integer> analyze(Iterable<String> texts, Set<String> stopWords, int minLength);
 
 }

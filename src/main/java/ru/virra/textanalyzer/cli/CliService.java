@@ -63,7 +63,7 @@ public class CliService {
         List<String> list = args.getOptionValues(name);
 
         if (list == null || list.isEmpty()) {
-            throw new InvalidArgumentsException("Error: option '--" + name + "' has not a value.");
+            throw new InvalidArgumentsException("Error: option '--" + name + "' does not have a value.");
         }
 
         if (list.size() > 1) {

@@ -17,7 +17,7 @@ public class ConsoleRunner implements ApplicationRunner {
     private final ApplicationService applicationService;
 
     @Override
-    public void run(ApplicationArguments args) throws Exception {
+    public void run(ApplicationArguments args) {
 
         if (args.containsOption("help")) {
             helpPrinter.print();
@@ -27,7 +27,6 @@ public class ConsoleRunner implements ApplicationRunner {
         try {
             AnalysisConfig config = cliService.parseArgs(args);
             applicationService.go(config);
-
 
         } catch (InvalidArgumentsException e) {
             System.err.println(e.getMessage());

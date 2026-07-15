@@ -1,4 +1,3 @@
 package ru.virra.textanalyzer.model;
 
-public class FileReadError {
-}
+public record FileReadError(String filename, String message) {}

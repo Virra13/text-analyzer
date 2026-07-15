@@ -3,16 +3,19 @@ package ru.virra.textanalyzer.application;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.virra.textanalyzer.analyzer.Analyzer;
-import ru.virra.textanalyzer.input.ReadResult;
+import ru.virra.textanalyzer.model.ReadResult;
 import ru.virra.textanalyzer.input.StopWordsReader;
 import ru.virra.textanalyzer.input.TextReader;
-import ru.virra.textanalyzer.input.TxtFileReader;
+import ru.virra.textanalyzer.model.AnalysisInfo;
+import ru.virra.textanalyzer.model.AnalysisResult;
+import ru.virra.textanalyzer.model.FileReadError;
 import ru.virra.textanalyzer.model.WordCount;
 import ru.virra.textanalyzer.output.ConsoleResultWriter;
 import ru.virra.textanalyzer.output.JsonResultWriter;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Component
 @RequiredArgsConstructor
@@ -27,7 +30,8 @@ public class ApplicationService {
     public void go(AnalysisConfig config) {
 
         ReadResult readResult = txtReader.read(config.getDirectory());
-        Map<String, Integer> result = analyzer.analize(readResult.texts().values(), stopWordsReader.loadStopWords(config.getStopWords()), config.getMinLength());
+        Set<String> stopWords = stopWordsReader.loadStopWords(config.getStopWords());
+        Map<String, Integer> result = analyzer.analyze(readResult.texts().values(), stopWords, config.getMinLength());
 
         List<WordCount> resultlist = result.entrySet().stream()
                 .sorted(Map.Entry.<String, Integer>comparingByValue()
@@ -37,8 +41,15 @@ public class ApplicationService {
                 .map(entry -> new WordCount(entry.getKey(), entry.getValue()))
                 .toList();
 
+        List<FileReadError> errors = readResult.readErrors().entrySet().stream()
+                .map(entry -> new FileReadError(entry.getKey().getFileName().toString(), entry.getValue()))
+                .toList();
+
+        AnalysisInfo info = new AnalysisInfo(config.getDirectory(), config.getMinLength(), config.getTop());
+        AnalysisResult analysisResult = new AnalysisResult(info, resultlist, errors);
+
         if (config.getOutput() != null) {
-            jsonResultWriter.write(resultlist, config.getOutput());
+            jsonResultWriter.write(analysisResult, config.getOutput());
         } else {
             consoleResultWriter.write(resultlist);
         }

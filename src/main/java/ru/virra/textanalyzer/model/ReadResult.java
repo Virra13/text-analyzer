@@ -1,4 +1,4 @@
-package ru.virra.textanalyzer.input;
+package ru.virra.textanalyzer.model;
 
 import java.nio.file.Path;
 import java.util.Map;

@@ -1,6 +1,7 @@
 package ru.virra.textanalyzer.input;
 
 import org.springframework.stereotype.Component;
+import ru.virra.textanalyzer.exception.FileProcessingException;
 import ru.virra.textanalyzer.exception.InvalidArgumentsException;
 
 import java.io.IOException;
@@ -14,7 +15,7 @@ import java.util.regex.Pattern;
 @Component
 public class StopWordsReader {
 
-    private final Pattern pattern = Pattern.compile("\\p{L}+(?:[-_'’]\\p{L}+)*");
+    private static final Pattern WORD_PATTERN = Pattern.compile("\\p{L}+(?:[-_'’]\\p{L}+)*");
 
     public Set<String> loadStopWords(Path path) {
 
@@ -23,15 +24,15 @@ public class StopWordsReader {
         }
 
         if (!Files.exists(path)){
-            throw new InvalidArgumentsException("Error: path does not exist: " + path);
+            throw new FileProcessingException("Error: path to stopwords does not exist: " + path);
         }
 
         if (!Files.isRegularFile(path)) {
-            throw new InvalidArgumentsException("Error: path is not a regular file: " + path);
+            throw new FileProcessingException("Error: path to stopwords is not a regular file: " + path);
         }
 
         if (!Files.isReadable(path)) {
-            throw new InvalidArgumentsException("Error: file is not readable: " + path);
+            throw new FileProcessingException("Error: file with stopwords is not readable: " + path);
         }
 
         String text;
@@ -39,12 +40,10 @@ public class StopWordsReader {
         try {
             text = Files.readString(path, StandardCharsets.UTF_8);
         } catch (IOException e) {
-            throw new InvalidArgumentsException(
-                    "Error: failed to read stopwords file '" + path + "': " + e.getMessage()
-            );
+            throw new FileProcessingException("Error: failed to read stopwords file '" + path + "': " + e.getMessage());
         }
 
-        Matcher matcher = pattern.matcher(text);
+        Matcher matcher = WORD_PATTERN.matcher(text);
         while (matcher.find()) {
             String word = matcher.group().toLowerCase(Locale.ROOT);
             words.add(word);

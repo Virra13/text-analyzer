@@ -1,7 +1,9 @@
 package ru.virra.textanalyzer.input;
 
 import org.springframework.stereotype.Component;
+import ru.virra.textanalyzer.exception.FileProcessingException;
 import ru.virra.textanalyzer.exception.InvalidArgumentsException;
+import ru.virra.textanalyzer.model.ReadResult;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -9,11 +11,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Stream;
 
 @Component
-public class TxtFileReader implements TextReader {
+public class DirectoryTextReader implements TextReader {
 
     public ReadResult read(Path path){
 
@@ -23,7 +26,9 @@ public class TxtFileReader implements TextReader {
 
             List<Path> listOfText = list
                     .filter(Files::isRegularFile)
-                    .filter(x -> x.getFileName().toString().endsWith(".txt"))
+                    .filter(x -> x.getFileName().toString()
+                            .toLowerCase(Locale.ROOT)
+                            .endsWith(".txt"))
                     .toList();
 
             Map<Path, String> readErrors = new HashMap<>();
@@ -45,15 +50,15 @@ public class TxtFileReader implements TextReader {
 
     private void validateDirectory(Path path) {
        if (!Files.exists(path)){
-           throw new InvalidArgumentsException("Error: directory does not exist: " + path);
+           throw new FileProcessingException("Error: directory does not exist: " + path);
        }
 
        if (!Files.isDirectory(path)) {
-           throw new InvalidArgumentsException("Error: path is not a directory: " + path);
+           throw new FileProcessingException("Error: path is not a directory: " + path);
        }
 
        if (!Files.isReadable(path)) {
-           throw new InvalidArgumentsException("Error: directory is not readable: " + path);
+           throw new FileProcessingException("Error: directory is not readable: " + path);
        }
     }
 }

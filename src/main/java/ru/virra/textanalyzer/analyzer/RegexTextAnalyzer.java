@@ -12,14 +12,14 @@ import java.util.regex.Pattern;
 @Component
 public class RegexTextAnalyzer implements Analyzer{
 
-    public Map<String, Integer> analize(Iterable<String> texts, Set<String> stopWords, int minLength) {
+    private static final Pattern WORD_PATTERN = Pattern.compile("\\p{L}+(?:[-_'’]\\p{L}+)*");
+
+    public Map<String, Integer> analyze(Iterable<String> texts, Set<String> stopWords, int minLength) {
 
         Map<String, Integer> result = new HashMap<>();
-        Pattern pattern = Pattern.compile("\\p{L}+(?:[-_'’]\\p{L}+)*");
-
         for (String text : texts) {
 
-            Matcher matcher = pattern.matcher(text);
+            Matcher matcher = WORD_PATTERN.matcher(text);
             while (matcher.find()) {
                 String word = matcher.group().toLowerCase(Locale.ROOT);
 
@@ -31,4 +31,3 @@ public class RegexTextAnalyzer implements Analyzer{
         return result;
     }
 }
-
