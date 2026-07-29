@@ -72,6 +72,9 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
         </plugins>
+
+        <finalName>text-analyzer</finalName>
+
     </build>
 
 </project>

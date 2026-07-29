@@ -47,15 +47,28 @@
 ## Сборка
 
 ```bash
-mvn clean package
+.\mvnw.cmd clean package
 ```
 
 После сборки исполняемый JAR-файл будет находиться в директории `target`.
 
-## Запуск
+### Запуск и тестовые данные
+
+В репозитории находится папка `texts` с готовыми `.txt`-файлами для проверки работы приложения.
+Также имеется папка `config`, содержащая файл `stopwords.txt` с примером списка стоп-слов, который можно использовать при запуске приложения с параметром `--stopwords`.
+
+После сборки проект можно запустить без дополнительной подготовки:
 
 ```bash
-java -jar target/text-analyzer-*.jar --dir=./texts --min-length=5 --top=10
+java -jar target/text-analyzer.jar --dir=./texts --min-length=3 --top=5
+```
+
+Приложение обработает все `.txt`-файлы из папки `texts` и выведет результат анализа в консоль.
+
+Для проверки на собственных данных можно указать другую директорию:
+
+```bash
+java -jar target/text-analyzer.jar --dir=./my-texts --min-length=3 --top=5
 ```
 
 ### Параметры
@@ -80,13 +93,13 @@ java -jar target/text-analyzer.jar --dir=./texts --min-length=3 --top=5
 С использованием стоп-слов:
 
 ```bash
-java -jar target/text-analyzer.jar --dir=./texts --min-length=5 --top=10 --stopwords=./stop.txt
+java -jar target/text-analyzer.jar --dir=./texts --min-length=5 --top=10 --stopwords=./config/stopwords.txt
 ```
 
 С сохранением результата в JSON:
 
 ```bash
-java -jar target/text-analyzer.jar --dir=./texts --min-length=5 --top=10 --stopwords=./stop.txt --output=./results.json
+java -jar target/text-analyzer.jar --dir=./texts --min-length=5 --top=10 --stopwords=./config/stopwords.txt --output=./results.json
 ```
 
 Просмотр справки:
