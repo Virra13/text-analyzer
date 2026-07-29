@@ -14,9 +14,9 @@ import java.nio.file.Path;
 @Getter
 @Builder
 public class AnalysisConfig {
-    Path directory;
-    int minLength;
-    int top;
-    Path output;
-    Path stopWords;
+    private Path directory;
+    private int minLength;
+    private int top;
+    private Path output;
+    private Path stopWords;
 }

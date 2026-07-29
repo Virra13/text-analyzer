@@ -27,6 +27,5 @@ public class ConsoleResultWriter  {
             System.out.printf("%d. %s - %d%n", i, wordCount.word(), wordCount.count());
             i++;
         }
-        log.info("Analysis result written to console: {} entries", list.size());
     }
 }
