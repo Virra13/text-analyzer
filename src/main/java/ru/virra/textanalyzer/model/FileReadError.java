@@ -6,4 +6,4 @@ package ru.virra.textanalyzer.model;
  * @param filename имя файла
  * @param message  описание ошибки
  */
-public record FileReadError(String filename, String message) {}
+public record FileReadError(String fileName, String message) {}
