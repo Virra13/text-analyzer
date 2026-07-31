@@ -1,0 +1,46 @@
+{
+  "analysisInfo" : {
+    "directory" : "file:///C:/Users/shael/OneDrive/Рабочий%20стол/text-analyzer/texts/",
+    "minWordLength" : 3,
+    "topCount" : 10,
+    "mode" : "MULTI",
+    "threads" : 4,
+    "processedFiles" : 3,
+    "executionTimeMs" : 7
+  },
+  "wordCount" : [ {
+    "word" : "город",
+    "count" : 5
+  }, {
+    "word" : "люди",
+    "count" : 4
+  }, {
+    "word" : "улице",
+    "count" : 4
+  }, {
+    "word" : "дома",
+    "count" : 3
+  }, {
+    "word" : "машина",
+    "count" : 3
+  }, {
+    "word" : "идут",
+    "count" : 2
+  }, {
+    "word" : "велосипед",
+    "count" : 1
+  }, {
+    "word" : "возле",
+    "count" : 1
+  }, {
+    "word" : "выходят",
+    "count" : 1
+  }, {
+    "word" : "едет",
+    "count" : 1
+  } ],
+  "errors" : [ {
+    "fileName" : "sample2.txt",
+    "message" : "Access denied while reading file: texts\\sample2.txt"
+  } ]
+}
