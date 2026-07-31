@@ -3,6 +3,7 @@ package ru.virra.textanalyzer.cli;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.stereotype.Component;
+import ru.virra.textanalyzer.application.ExecutionMode;
 import ru.virra.textanalyzer.exception.InvalidArgumentsException;
 import ru.virra.textanalyzer.application.AnalysisConfig;
 
@@ -26,6 +27,8 @@ public class CliService {
     private static final String TOP = "top";
     private static final String OUTPUT = "output";
     private static final String STOPWORDS = "stopwords";
+    private static final String THREADS = "threads";
+    private static final String MODE = "mode";
 
     /**
      * Разбирает параметры запуска и формирует конфигурацию анализа.
@@ -44,6 +47,8 @@ public class CliService {
         Path stop = getOptionalPath(args, STOPWORDS);
         int minLength = getPositiveInt(args, MIN_LENGTH);
         int top = getPositiveInt(args, TOP);
+        int threads = getThreads(args);
+        ExecutionMode mode = getMode(args);
 
         log.debug("Command-line arguments parsed successfully");
         return AnalysisConfig.builder()
@@ -52,6 +57,8 @@ public class CliService {
                 .top(top)
                 .output(output)
                 .stopWords(stop)
+                .threads(threads)
+                .mode(mode)
                 .build();
         }
 
@@ -122,5 +129,29 @@ public class CliService {
         if (value < 1) {
             throw new InvalidArgumentsException("Error: option '--" + name + "' must be greater than 0, but got: '" + value + "'.");
         }
+    }
+
+    private ExecutionMode getMode(ApplicationArguments args) {
+        if (!args.containsOption(MODE)) {
+            return ExecutionMode.SINGLE;
+        }
+
+        String value = getValue(args, MODE);
+
+        try {
+            return ExecutionMode.fromString(value);
+        } catch (IllegalArgumentException e) {
+            throw new InvalidArgumentsException(
+                    "Error: option '--mode' must be 'single' or 'multi', but got: '" + value + "'."
+            );
+        }
+    }
+
+    private int getThreads(ApplicationArguments args) {
+        if (!args.containsOption(THREADS)) {
+            return 2;
+        }
+
+        return getPositiveInt(args, THREADS);
     }
 }

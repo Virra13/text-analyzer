@@ -19,4 +19,6 @@ public class AnalysisConfig {
     private int top;
     private Path output;
     private Path stopWords;
+    private int threads;
+    private ExecutionMode mode;
 }

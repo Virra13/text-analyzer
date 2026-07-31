@@ -1,5 +1,7 @@
 package ru.virra.textanalyzer.model;
 
+import ru.virra.textanalyzer.application.ExecutionMode;
+
 import java.nio.file.Path;
 
 /**
@@ -9,4 +11,5 @@ import java.nio.file.Path;
  * @param minWordLength минимальная длина учитываемого слова
  * @param topCount      максимальное количество слов в результате
  */
-public record AnalysisInfo(Path directory, int minWordLength, int topCount) {}
+public record AnalysisInfo(Path directory, int minWordLength, int topCount, ExecutionMode mode, int threads,
+                           int processedFiles, long executionTimeMs) {}
