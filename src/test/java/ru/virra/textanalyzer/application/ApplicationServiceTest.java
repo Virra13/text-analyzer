@@ -7,33 +7,34 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import ru.virra.textanalyzer.analyzer.Analyzer;
+import ru.virra.textanalyzer.input.DirectoryScanner;
 import ru.virra.textanalyzer.input.StopWordsReader;
-import ru.virra.textanalyzer.input.TextReader;
 import ru.virra.textanalyzer.model.AnalysisResult;
-import ru.virra.textanalyzer.model.ReadResult;
+import ru.virra.textanalyzer.model.ProcessingResult;
 import ru.virra.textanalyzer.model.WordCount;
 import ru.virra.textanalyzer.output.ConsoleResultWriter;
 import ru.virra.textanalyzer.output.JsonResultWriter;
+import ru.virra.textanalyzer.processing.AnalysisProcessor;
 
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
-
 @ExtendWith(MockitoExtension.class)
 class ApplicationServiceTest {
-    @Mock
-    private TextReader txtReader;
 
     @Mock
-    private Analyzer analyzer;
+    private DirectoryScanner directoryScanner;
+
+    @Mock
+    private AnalysisProcessor processor;
 
     @Mock
     private StopWordsReader stopWordsReader;
@@ -45,18 +46,20 @@ class ApplicationServiceTest {
     private JsonResultWriter jsonResultWriter;
 
     @Captor
-    private ArgumentCaptor<List<WordCount>> wordCountCaptor;
-
-    @Captor
     private ArgumentCaptor<AnalysisResult> analysisResultCaptor;
 
     private ApplicationService applicationService;
 
     @BeforeEach
     void setUp() {
+        Map<String, AnalysisProcessor> processors = Map.of(
+                "single", processor,
+                "multi", processor
+        );
+
         applicationService = new ApplicationService(
-                txtReader,
-                analyzer,
+                directoryScanner,
+                processors,
                 stopWordsReader,
                 consoleResultWriter,
                 jsonResultWriter
@@ -64,68 +67,57 @@ class ApplicationServiceTest {
     }
 
     @Test
-    void shouldPassDataToAnalyzer() {
+    void shouldPassDataToProcessor() {
         Path directory = Path.of("texts");
         Path stopWordsPath = Path.of("stopwords.txt");
 
-        AnalysisConfig config = mock(AnalysisConfig.class);
+        AnalysisConfig config = createConsoleConfig(4, 10);
 
-        when(config.getDirectory()).thenReturn(directory);
-        when(config.getStopWords()).thenReturn(stopWordsPath);
-        when(config.getMinLength()).thenReturn(4);
-        when(config.getTop()).thenReturn(10);
-        when(config.getOutput()).thenReturn(null);
-
-        Map<Path, String> texts = Map.of(
-                Path.of("first.txt"), "Первый текст",
-                Path.of("second.txt"), "Второй текст"
-        );
-
-        ReadResult readResult = new ReadResult(
-                texts,
-                Map.of()
+        List<Path> files = List.of(
+                Path.of("texts", "first.txt"),
+                Path.of("texts", "second.txt")
         );
 
         Set<String> stopWords = Set.of("первый", "второй");
 
-        when(txtReader.read(directory)).thenReturn(readResult);
+        when(directoryScanner.scan(directory)).thenReturn(files);
         when(stopWordsReader.loadStopWords(stopWordsPath)).thenReturn(stopWords);
-        when(analyzer.analyze(texts.values(), stopWords, 4))
-                .thenReturn(Map.of());
+        when(processor.process(files, stopWords, 4, 2)).thenReturn(
+                new ProcessingResult(Map.of(), Map.of(), 2)
+        );
 
         applicationService.go(config);
 
-        verify(txtReader).read(directory);
+        verify(directoryScanner).scan(directory);
         verify(stopWordsReader).loadStopWords(stopWordsPath);
-        verify(analyzer).analyze(texts.values(), stopWords, 4);
+        verify(processor).process(files, stopWords, 4, 2);
     }
 
     @Test
     void shouldSortWordsByCountDescending() {
-        AnalysisConfig config = createConsoleConfig(10);
+        AnalysisConfig config = createConsoleConfig(3, 10);
 
-        when(txtReader.read(any())).thenReturn(
-                new ReadResult(
-                        Map.of(Path.of("text.txt"), "Текст"),
-                        Map.of()
+        List<Path> files = List.of(Path.of("texts", "text.txt"));
+
+        when(directoryScanner.scan(any())).thenReturn(files);
+        when(stopWordsReader.loadStopWords(any())).thenReturn(Set.of());
+        when(processor.process(any(), any(), anyInt(), anyInt())).thenReturn(
+                new ProcessingResult(
+                        Map.of(
+                                "река", 2,
+                                "лес", 5,
+                                "ветер", 3
+                        ),
+                        Map.of(),
+                        1
                 )
         );
 
-        when(stopWordsReader.loadStopWords(any()))
-                .thenReturn(Set.of());
-
-        when(analyzer.analyze(any(), any(), anyInt()))
-                .thenReturn(Map.of(
-                        "река", 2,
-                        "лес", 5,
-                        "ветер", 3
-                ));
-
         applicationService.go(config);
 
-        verify(consoleResultWriter).write(wordCountCaptor.capture());
+        verify(consoleResultWriter).write(analysisResultCaptor.capture());
 
-        List<WordCount> result = wordCountCaptor.getValue();
+        List<WordCount> result = analysisResultCaptor.getValue().wordCount();
 
         assertEquals("лес", result.get(0).word());
         assertEquals(5, result.get(0).count());
@@ -139,30 +131,31 @@ class ApplicationServiceTest {
 
     @Test
     void shouldSortAlphabeticallyWhenCountsAreEqual() {
-        AnalysisConfig config = createConsoleConfig(10);
+        AnalysisConfig config = createConsoleConfig(3, 10);
 
-        when(txtReader.read(any())).thenReturn(
-                new ReadResult(
-                        Map.of(Path.of("text.txt"), "Текст"),
-                        Map.of()
+        when(directoryScanner.scan(any())).thenReturn(
+                List.of(Path.of("texts", "text.txt"))
+        );
+
+        when(stopWordsReader.loadStopWords(any())).thenReturn(Set.of());
+
+        when(processor.process(any(), any(), anyInt(), anyInt())).thenReturn(
+                new ProcessingResult(
+                        Map.of(
+                                "ветер", 3,
+                                "берег", 3,
+                                "река", 3
+                        ),
+                        Map.of(),
+                        1
                 )
         );
 
-        when(stopWordsReader.loadStopWords(any()))
-                .thenReturn(Set.of());
-
-        when(analyzer.analyze(any(), any(), anyInt()))
-                .thenReturn(Map.of(
-                        "ветер", 3,
-                        "берег", 3,
-                        "река", 3
-                ));
-
         applicationService.go(config);
 
-        verify(consoleResultWriter).write(wordCountCaptor.capture());
+        verify(consoleResultWriter).write(analysisResultCaptor.capture());
 
-        List<WordCount> result = wordCountCaptor.getValue();
+        List<WordCount> result = analysisResultCaptor.getValue().wordCount();
 
         assertEquals("берег", result.get(0).word());
         assertEquals("ветер", result.get(1).word());
@@ -171,31 +164,32 @@ class ApplicationServiceTest {
 
     @Test
     void shouldLimitResultByTop() {
-        AnalysisConfig config = createConsoleConfig(2);
+        AnalysisConfig config = createConsoleConfig(3, 2);
 
-        when(txtReader.read(any())).thenReturn(
-                new ReadResult(
-                        Map.of(Path.of("text.txt"), "Текст"),
-                        Map.of()
+        when(directoryScanner.scan(any())).thenReturn(
+                List.of(Path.of("texts", "text.txt"))
+        );
+
+        when(stopWordsReader.loadStopWords(any())).thenReturn(Set.of());
+
+        when(processor.process(any(), any(), anyInt(), anyInt())).thenReturn(
+                new ProcessingResult(
+                        Map.of(
+                                "город", 7,
+                                "улица", 5,
+                                "машина", 4,
+                                "окно", 2
+                        ),
+                        Map.of(),
+                        1
                 )
         );
 
-        when(stopWordsReader.loadStopWords(any()))
-                .thenReturn(Set.of());
-
-        when(analyzer.analyze(any(), any(), anyInt()))
-                .thenReturn(Map.of(
-                        "город", 7,
-                        "улица", 5,
-                        "машина", 4,
-                        "окно", 2
-                ));
-
         applicationService.go(config);
 
-        verify(consoleResultWriter).write(wordCountCaptor.capture());
+        verify(consoleResultWriter).write(analysisResultCaptor.capture());
 
-        List<WordCount> result = wordCountCaptor.getValue();
+        List<WordCount> result = analysisResultCaptor.getValue().wordCount();
 
         assertEquals(2, result.size());
         assertEquals("город", result.get(0).word());
@@ -204,24 +198,25 @@ class ApplicationServiceTest {
 
     @Test
     void shouldUseConsoleWriterWhenOutputIsNull() {
-        AnalysisConfig config = createConsoleConfig(10);
+        AnalysisConfig config = createConsoleConfig(3, 10);
 
-        when(txtReader.read(any())).thenReturn(
-                new ReadResult(
-                        Map.of(Path.of("text.txt"), "Текст"),
-                        Map.of()
+        when(directoryScanner.scan(any())).thenReturn(
+                List.of(Path.of("texts", "text.txt"))
+        );
+
+        when(stopWordsReader.loadStopWords(any())).thenReturn(Set.of());
+
+        when(processor.process(any(), any(), anyInt(), anyInt())).thenReturn(
+                new ProcessingResult(
+                        Map.of("слово", 1),
+                        Map.of(),
+                        1
                 )
         );
 
-        when(stopWordsReader.loadStopWords(any()))
-                .thenReturn(Set.of());
-
-        when(analyzer.analyze(any(), any(), anyInt()))
-                .thenReturn(Map.of("слово", 1));
-
         applicationService.go(config);
 
-        verify(consoleResultWriter).write(any());
+        verify(consoleResultWriter).write(any(AnalysisResult.class));
         verify(jsonResultWriter, never()).write(any(), any());
     }
 
@@ -229,56 +224,55 @@ class ApplicationServiceTest {
     void shouldUseJsonWriterWhenOutputIsSpecified() {
         Path output = Path.of("result.json");
 
-        AnalysisConfig config = createJsonConfig(output, 10);
+        AnalysisConfig config = createJsonConfig(output, 3, 10);
 
-        when(txtReader.read(any())).thenReturn(
-                new ReadResult(
-                        Map.of(Path.of("text.txt"), "Текст"),
-                        Map.of()
+        when(directoryScanner.scan(any())).thenReturn(
+                List.of(Path.of("texts", "text.txt"))
+        );
+
+        when(stopWordsReader.loadStopWords(any())).thenReturn(Set.of());
+
+        when(processor.process(any(), any(), anyInt(), anyInt())).thenReturn(
+                new ProcessingResult(
+                        Map.of("дорога", 2),
+                        Map.of(),
+                        1
                 )
         );
 
-        when(stopWordsReader.loadStopWords(any()))
-                .thenReturn(Set.of());
-
-        when(analyzer.analyze(any(), any(), anyInt()))
-                .thenReturn(Map.of("дорога", 2));
-
         applicationService.go(config);
 
-        verify(jsonResultWriter)
-                .write(any(AnalysisResult.class), eq(output));
-
-        verify(consoleResultWriter, never())
-                .write(any());
+        verify(jsonResultWriter).write(any(AnalysisResult.class), eq(output));
+        verify(consoleResultWriter, never()).write(any(AnalysisResult.class));
     }
 
     @Test
     void shouldIncludeReadErrorsInAnalysisResult() {
         Path output = Path.of("result.json");
 
-        AnalysisConfig config = createJsonConfig(output, 10);
+        AnalysisConfig config = createJsonConfig(output, 3, 10);
 
-        ReadResult readResult = new ReadResult(
-                Map.of(),
-                Map.of(
-                        Path.of("texts", "broken.txt"),
-                        "Ошибка чтения"
+        List<Path> files = List.of(
+                Path.of("texts", "broken.txt")
+        );
+
+        when(directoryScanner.scan(any())).thenReturn(files);
+        when(stopWordsReader.loadStopWords(any())).thenReturn(Set.of());
+
+        when(processor.process(any(), any(), anyInt(), anyInt())).thenReturn(
+                new ProcessingResult(
+                        Map.of(),
+                        Map.of(
+                                Path.of("texts", "broken.txt"),
+                                "Ошибка чтения"
+                        ),
+                        0
                 )
         );
 
-        when(txtReader.read(any())).thenReturn(readResult);
-
-        when(stopWordsReader.loadStopWords(any()))
-                .thenReturn(Set.of());
-
-        when(analyzer.analyze(any(), any(), anyInt()))
-                .thenReturn(Map.of());
-
         applicationService.go(config);
 
-        verify(jsonResultWriter)
-                .write(analysisResultCaptor.capture(), eq(output));
+        verify(jsonResultWriter).write(analysisResultCaptor.capture(), eq(output));
 
         AnalysisResult result = analysisResultCaptor.getValue();
 
@@ -287,26 +281,61 @@ class ApplicationServiceTest {
         assertEquals("Ошибка чтения", result.errors().getFirst().message());
     }
 
-    private AnalysisConfig createConsoleConfig(int top) {
+    @Test
+    void shouldIncludeProcessedFilesInAnalysisInfo() {
+        AnalysisConfig config = createConsoleConfig(3, 10);
+
+        List<Path> files = List.of(
+                Path.of("texts", "first.txt"),
+                Path.of("texts", "second.txt")
+        );
+
+        when(directoryScanner.scan(any())).thenReturn(files);
+        when(stopWordsReader.loadStopWords(any())).thenReturn(Set.of());
+
+        when(processor.process(any(), any(), anyInt(), anyInt())).thenReturn(
+                new ProcessingResult(
+                        Map.of("java", 2),
+                        Map.of(),
+                        2
+                )
+        );
+
+        applicationService.go(config);
+
+        verify(consoleResultWriter).write(analysisResultCaptor.capture());
+
+        AnalysisResult result = analysisResultCaptor.getValue();
+
+        assertEquals(2, result.analysisInfo().processedFiles());
+        assertEquals(ExecutionMode.SINGLE, result.analysisInfo().mode());
+        assertEquals(2, result.analysisInfo().threads());
+    }
+
+    private AnalysisConfig createConsoleConfig(int minLength, int top) {
         AnalysisConfig config = mock(AnalysisConfig.class);
 
         when(config.getDirectory()).thenReturn(Path.of("texts"));
         when(config.getStopWords()).thenReturn(Path.of("stopwords.txt"));
-        when(config.getMinLength()).thenReturn(3);
+        when(config.getMinLength()).thenReturn(minLength);
         when(config.getTop()).thenReturn(top);
         when(config.getOutput()).thenReturn(null);
+        when(config.getMode()).thenReturn(ExecutionMode.SINGLE);
+        when(config.getThreads()).thenReturn(2);
 
         return config;
     }
 
-    private AnalysisConfig createJsonConfig(Path output, int top) {
+    private AnalysisConfig createJsonConfig(Path output, int minLength, int top) {
         AnalysisConfig config = mock(AnalysisConfig.class);
 
         when(config.getDirectory()).thenReturn(Path.of("texts"));
         when(config.getStopWords()).thenReturn(Path.of("stopwords.txt"));
-        when(config.getMinLength()).thenReturn(3);
+        when(config.getMinLength()).thenReturn(minLength);
         when(config.getTop()).thenReturn(top);
         when(config.getOutput()).thenReturn(output);
+        when(config.getMode()).thenReturn(ExecutionMode.SINGLE);
+        when(config.getThreads()).thenReturn(2);
 
         return config;
     }

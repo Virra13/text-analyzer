@@ -11,6 +11,8 @@ import java.util.Map;
  * @param readErrors ошибки чтения файлов, где ключ — путь к файлу,
  *                   а значение — описание ошибки
  */
-public record ReadResult (Map<Path, String> texts, Map<Path, String> readErrors) {
+public record ReadResult (
+        Map<Path, String> texts,
+        Map<Path, String> readErrors) {
 
 }

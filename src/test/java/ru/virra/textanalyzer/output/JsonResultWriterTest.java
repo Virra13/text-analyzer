@@ -1,6 +1,5 @@
 package ru.virra.textanalyzer.output;
 
-import tools.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -9,6 +8,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.virra.textanalyzer.exception.FileProcessingException;
 import ru.virra.textanalyzer.model.AnalysisResult;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectWriter;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -24,6 +25,9 @@ class JsonResultWriterTest {
     @Mock
     private ObjectMapper objectMapper;
 
+    @Mock
+    private ObjectWriter objectWriter;
+
     private JsonResultWriter writer;
 
     @TempDir
@@ -37,15 +41,14 @@ class JsonResultWriterTest {
     @Test
     void shouldWriteResultToFileWhenPathIsValid() throws IOException {
         Path output = tempDir.resolve("result.json");
-
         AnalysisResult analysisResult = mock(AnalysisResult.class);
+
+        when(objectMapper.writerWithDefaultPrettyPrinter()).thenReturn(objectWriter);
 
         writer.write(analysisResult, output);
 
-        verify(objectMapper).writeValue(
-                output.toFile(),
-                analysisResult
-        );
+        verify(objectMapper).writerWithDefaultPrettyPrinter();
+        verify(objectWriter).writeValue(output.toFile(), analysisResult);
     }
 
     @Test
@@ -55,12 +58,12 @@ class JsonResultWriterTest {
 
         AnalysisResult analysisResult = mock(AnalysisResult.class);
 
+        when(objectMapper.writerWithDefaultPrettyPrinter()).thenReturn(objectWriter);
+
         writer.write(analysisResult, output);
 
-        verify(objectMapper).writeValue(
-                output.toFile(),
-                analysisResult
-        );
+        verify(objectMapper).writerWithDefaultPrettyPrinter();
+        verify(objectWriter).writeValue(output.toFile(), analysisResult);
     }
 
     @Test
@@ -80,7 +83,7 @@ class JsonResultWriterTest {
                 exception.getMessage()
         );
 
-        verifyNoInteractions(objectMapper);
+        verifyNoInteractions(objectMapper, objectWriter);
     }
 
     @Test
@@ -89,7 +92,6 @@ class JsonResultWriterTest {
         Files.createFile(parent);
 
         Path output = parent.resolve("result.json");
-
         AnalysisResult analysisResult = mock(AnalysisResult.class);
 
         FileProcessingException exception = assertThrows(
@@ -102,7 +104,7 @@ class JsonResultWriterTest {
                 exception.getMessage()
         );
 
-        verifyNoInteractions(objectMapper);
+        verifyNoInteractions(objectMapper, objectWriter);
     }
 
     @Test
@@ -122,6 +124,6 @@ class JsonResultWriterTest {
                 exception.getMessage()
         );
 
-        verifyNoInteractions(objectMapper);
+        verifyNoInteractions(objectMapper, objectWriter);
     }
 }

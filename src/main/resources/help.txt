@@ -1,24 +1,36 @@
 TEXT ANALYZER
 Usage:
 
-  java -jar text-analyzer.jar --dir=<path> --min-length=<number> --top=<number> [--stopwords=<path>] [--output=<path>]
+  java -jar text-analyzer.jar --dir=<path> --min-length=<number> --top=<number>
+        [--stopwords=<path>] [--output=<path>]
+        [--mode=<single|multi>] [--threads=<number>]
 
 Options:
 
   --dir=<path>
-      Directory containing .txt files. (required)
+      Directory containing .txt files. Required.
 
   --min-length=<number>
-      Minimum word length. Integer > 0. (required)
+      Minimum word length. Must be greater than 0. Required.
 
   --top=<number>
-      Number of most frequent words to output. Integer > 0. (required)
+      Number of most frequent words to output. Must be greater than 0. Required.
 
   --stopwords=<path>
-      File containing stop words. (optional)
+      File containing stop words.
 
   --output=<path>
-      Output JSON file. If omitted, the result is printed to the console. (optional)
+      Output JSON file. If omitted, the result is printed to the console.
+
+  --mode=<single|multi>
+      Processing mode:
+        single - process files sequentially
+        multi  - process files using a thread pool
+      Default: single.
+
+  --threads=<number>
+      Number of worker threads used in multi mode. Must be greater than 0.
+      Default: 2.
 
   --help
       Show this help message.

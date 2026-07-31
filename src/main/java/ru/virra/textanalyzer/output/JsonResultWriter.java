@@ -37,7 +37,7 @@ public class JsonResultWriter {
 
         validate(path);
         File outputFile = path.toFile();
-        objectMapper.writeValue(outputFile, analysisResult);
+        objectMapper.writerWithDefaultPrettyPrinter().writeValue(outputFile, analysisResult);
         log.info("Analysis result written successfully to: {}",path);
     }
 

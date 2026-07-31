@@ -2,6 +2,9 @@ package ru.virra.textanalyzer.output;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import ru.virra.textanalyzer.application.ExecutionMode;
+import ru.virra.textanalyzer.model.AnalysisInfo;
+import ru.virra.textanalyzer.model.AnalysisResult;
 import ru.virra.textanalyzer.model.WordCount;
 
 import java.util.List;
@@ -20,7 +23,19 @@ public class ConsoleResultWriter  {
      *
      * @param list список результатов анализа
      */
-    public void write(List<WordCount> list) {
+    public void write(AnalysisResult analysisResult) {
+        AnalysisInfo info = analysisResult.analysisInfo();
+
+        if (info.mode() == ExecutionMode.MULTI) {
+            System.out.printf("Mode: MULTI (%d workers)%n", info.threads());
+        } else {
+            System.out.println("Mode: SINGLE");
+        }
+
+        System.out.printf("Processed %d files in %d ms%n", info.processedFiles(), info.executionTimeMs());
+        System.out.printf("Top %d words (min length = %d):%n", info.topCount(), info.minWordLength());
+
+        List<WordCount> list = analysisResult.wordCount();
 
         int i = 1;
         for (var wordCount : list) {
