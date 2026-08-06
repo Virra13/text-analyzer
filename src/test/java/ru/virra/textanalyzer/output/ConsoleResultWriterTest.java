@@ -3,10 +3,11 @@ package ru.virra.textanalyzer.output;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ru.virra.textanalyzer.application.ExecutionMode;
-import ru.virra.textanalyzer.model.AnalysisInfo;
-import ru.virra.textanalyzer.model.AnalysisResult;
-import ru.virra.textanalyzer.model.WordCount;
+import ru.virra.textanalyzer.analysis.application.ExecutionMode;
+import ru.virra.textanalyzer.analysis.model.AnalysisInfo;
+import ru.virra.textanalyzer.analysis.model.AnalysisResult;
+import ru.virra.textanalyzer.analysis.model.WordCount;
+import ru.virra.textanalyzer.cli.output.ConsoleResultWriter;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;

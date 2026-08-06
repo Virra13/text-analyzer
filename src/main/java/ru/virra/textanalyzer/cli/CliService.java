@@ -3,9 +3,9 @@ package ru.virra.textanalyzer.cli;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.stereotype.Component;
-import ru.virra.textanalyzer.application.ExecutionMode;
+import ru.virra.textanalyzer.analysis.application.ExecutionMode;
 import ru.virra.textanalyzer.exception.InvalidArgumentsException;
-import ru.virra.textanalyzer.application.AnalysisConfig;
+import ru.virra.textanalyzer.analysis.application.AnalysisConfig;
 
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;

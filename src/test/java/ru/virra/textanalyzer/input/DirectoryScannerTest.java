@@ -2,6 +2,7 @@ package ru.virra.textanalyzer.input;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import ru.virra.textanalyzer.analysis.input.DirectoryScanner;
 import ru.virra.textanalyzer.exception.FileProcessingException;
 
 import java.io.IOException;

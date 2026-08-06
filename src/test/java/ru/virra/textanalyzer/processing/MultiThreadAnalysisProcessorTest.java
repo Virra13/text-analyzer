@@ -5,9 +5,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import ru.virra.textanalyzer.analyzer.Analyzer;
-import ru.virra.textanalyzer.input.TextReader;
-import ru.virra.textanalyzer.model.ProcessingResult;
+import ru.virra.textanalyzer.analysis.processing.MultiThreadAnalysisProcessor;
+import ru.virra.textanalyzer.analysis.analyzer.Analyzer;
+import ru.virra.textanalyzer.analysis.input.TextReader;
+import ru.virra.textanalyzer.analysis.model.ProcessingResult;
 
 import java.nio.file.Path;
 import java.util.List;

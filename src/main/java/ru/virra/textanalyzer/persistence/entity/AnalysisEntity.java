@@ -1,7 +1,6 @@
 package ru.virra.textanalyzer.persistence.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -43,9 +42,6 @@ public class AnalysisEntity {
     private int threads;
 
     @Column(nullable = false)
-    private String username;
-
-    @Column(nullable = false)
     private LocalDateTime createdAt;
 
     private LocalDateTime startedAt;
@@ -53,10 +49,14 @@ public class AnalysisEntity {
     private Long executionTimeMs;
     private Integer processedFiles;
 
-    @OneToMany(mappedBy = "analysis", cascade = ALL, orphanRemoval = true)
-    private List<WordsResultEntity> words = new ArrayList<>();
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private UserEntity user;
 
-    public void addWord(WordsResultEntity word) {
+    @OneToMany(mappedBy = "analysis", cascade = ALL, orphanRemoval = true)
+    private List<WordResultEntity> words = new ArrayList<>();
+
+    public void addWord(WordResultEntity word) {
         words.add(word);
         word.setAnalysis(this);
     }

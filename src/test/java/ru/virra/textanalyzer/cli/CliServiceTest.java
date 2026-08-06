@@ -3,7 +3,7 @@ package ru.virra.textanalyzer.cli;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.DefaultApplicationArguments;
-import ru.virra.textanalyzer.application.AnalysisConfig;
+import ru.virra.textanalyzer.analysis.application.AnalysisConfig;
 import ru.virra.textanalyzer.exception.InvalidArgumentsException;
 
 import java.nio.file.Path;

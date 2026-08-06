@@ -6,8 +6,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import ru.virra.textanalyzer.cli.output.JsonResultWriter;
 import ru.virra.textanalyzer.exception.FileProcessingException;
-import ru.virra.textanalyzer.model.AnalysisResult;
+import ru.virra.textanalyzer.analysis.model.AnalysisResult;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.ObjectWriter;
 

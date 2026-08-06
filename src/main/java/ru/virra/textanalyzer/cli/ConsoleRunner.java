@@ -7,11 +7,11 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import ru.virra.textanalyzer.exception.InvalidArgumentsException;
-import ru.virra.textanalyzer.application.AnalysisConfig;
-import ru.virra.textanalyzer.application.ApplicationService;
-import ru.virra.textanalyzer.model.AnalysisResult;
-import ru.virra.textanalyzer.output.ConsoleResultWriter;
-import ru.virra.textanalyzer.output.JsonResultWriter;
+import ru.virra.textanalyzer.analysis.application.AnalysisConfig;
+import ru.virra.textanalyzer.analysis.application.ApplicationService;
+import ru.virra.textanalyzer.analysis.model.AnalysisResult;
+import ru.virra.textanalyzer.cli.output.ConsoleResultWriter;
+import ru.virra.textanalyzer.cli.output.JsonResultWriter;
 
 /**
  * Точка запуска основного сценария консольного приложения.

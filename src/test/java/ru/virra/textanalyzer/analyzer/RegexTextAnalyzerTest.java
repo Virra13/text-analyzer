@@ -2,6 +2,7 @@ package ru.virra.textanalyzer.analyzer;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import ru.virra.textanalyzer.analysis.analyzer.RegexTextAnalyzer;
 
 import java.util.List;
 import java.util.Map;
