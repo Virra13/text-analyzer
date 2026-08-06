@@ -2,13 +2,10 @@ package ru.virra.textanalyzer.application;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import ru.virra.textanalyzer.input.DirectoryScanner;
 import ru.virra.textanalyzer.model.*;
 import ru.virra.textanalyzer.input.StopWordsReader;
-import ru.virra.textanalyzer.input.TextReader;
-import ru.virra.textanalyzer.output.ConsoleResultWriter;
-import ru.virra.textanalyzer.output.JsonResultWriter;
 import ru.virra.textanalyzer.processing.AnalysisProcessor;
 
 import java.nio.file.Path;
@@ -23,15 +20,13 @@ import java.util.Set;
  * формирует итоговый результат и передаёт его выбранному компоненту вывода.</p>
  */
 @Slf4j
-@Component
+@Service
 @RequiredArgsConstructor
 public class ApplicationService {
 
     private final DirectoryScanner directoryScanner;
     private final Map<String, AnalysisProcessor> processors;
     private final StopWordsReader stopWordsReader;
-    private final ConsoleResultWriter consoleResultWriter;
-    private final JsonResultWriter jsonResultWriter;
 
     /**
      * Выполняет обработку текстовых файлов согласно конфигурации:
@@ -40,7 +35,7 @@ public class ApplicationService {
      *
      * @param config конфигурация анализа
      */
-    public void go(AnalysisConfig config) {
+    public AnalysisResult go(AnalysisConfig config) {
 
         log.info("Scanning text files from directory: {}", config.getDirectory());
         List<Path> files = directoryScanner.scan(config.getDirectory());
@@ -95,15 +90,8 @@ public class ApplicationService {
         );
 
         AnalysisResult analysisResult = new AnalysisResult(info, resultList, errors);
-
-        if (config.getOutput() != null) {
-            jsonResultWriter.write(analysisResult, config.getOutput());
-            log.info("Writing result to JSON file: {}", config.getOutput());
-        } else {
-            consoleResultWriter.write(analysisResult);
-            log.info("Writing result to console");
-        }
-
         log.info("Text analysis finished successfully");
+
+        return analysisResult;
     }
 }

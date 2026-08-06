@@ -1,0 +1,64 @@
+package ru.virra.textanalyzer.persistence.entity;
+
+import jakarta.persistence.*;
+import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+import static jakarta.persistence.CascadeType.ALL;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@Entity
+@Table (name = "analyses")
+public class AnalysisEntity {
+
+    @Id
+    private UUID id;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private AnalysisStatus status;
+
+    @Column(nullable = false)
+    private String directory;
+
+    @Column(nullable = false)
+    private int minWordLength;
+
+    @Column(nullable = false)
+    private int topCount;
+
+    @Column(nullable = false)
+    private String mode;
+
+    @Column(nullable = false)
+    private int threads;
+
+    @Column(nullable = false)
+    private String username;
+
+    @Column(nullable = false)
+    private LocalDateTime createdAt;
+
+    private LocalDateTime startedAt;
+    private LocalDateTime completedAt;
+    private Long executionTimeMs;
+    private Integer processedFiles;
+
+    @OneToMany(mappedBy = "analysis", cascade = ALL, orphanRemoval = true)
+    private List<WordsResultEntity> words = new ArrayList<>();
+
+    public void addWord(WordsResultEntity word) {
+        words.add(word);
+        word.setAnalysis(this);
+    }
+
+}

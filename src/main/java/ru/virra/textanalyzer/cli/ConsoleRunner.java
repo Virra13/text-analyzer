@@ -4,10 +4,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import ru.virra.textanalyzer.exception.InvalidArgumentsException;
 import ru.virra.textanalyzer.application.AnalysisConfig;
 import ru.virra.textanalyzer.application.ApplicationService;
+import ru.virra.textanalyzer.model.AnalysisResult;
+import ru.virra.textanalyzer.output.ConsoleResultWriter;
+import ru.virra.textanalyzer.output.JsonResultWriter;
 
 /**
  * Точка запуска основного сценария консольного приложения.
@@ -17,6 +21,7 @@ import ru.virra.textanalyzer.application.ApplicationService;
  * {@link ApplicationService}.</p>
  */
 @Slf4j
+@Profile("cli")
 @RequiredArgsConstructor
 @Component
 public class ConsoleRunner implements ApplicationRunner {
@@ -24,7 +29,8 @@ public class ConsoleRunner implements ApplicationRunner {
     private final CliService cliService;
     private final HelpPrinter helpPrinter;
     private final ApplicationService applicationService;
-
+    private final ConsoleResultWriter consoleResultWriter;
+    private final JsonResultWriter jsonResultWriter;
 
     /**
      * Выполняется после инициализации Spring-контекста.
@@ -49,9 +55,16 @@ public class ConsoleRunner implements ApplicationRunner {
             log.debug("Command-line arguments parsed successfully: {}", config);
 
             log.info("Starting text analysis for directory: {}", config.getDirectory());
-            applicationService.go(config);
-
+            AnalysisResult analysisResult = applicationService.go(config);
             log.info("Text analysis completed");
+
+            if (config.getOutput() != null) {
+                jsonResultWriter.write(analysisResult, config.getOutput());
+                log.info("Writing result to JSON file: {}", config.getOutput());
+            } else {
+                consoleResultWriter.write(analysisResult);
+                log.info("Writing result to console");
+            }
 
         } catch (InvalidArgumentsException e) {
             System.err.println(e.getMessage());

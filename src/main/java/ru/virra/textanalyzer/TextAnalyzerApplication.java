@@ -2,6 +2,7 @@ package ru.virra.textanalyzer;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 /**
  * Точка входа в консольное приложение для анализа текстовых файлов.
@@ -12,6 +13,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * {@link org.springframework.boot.CommandLineRunner}.</p>
  */
 @SpringBootApplication
+@EnableAsync
 public class TextAnalyzerApplication {
 
 
