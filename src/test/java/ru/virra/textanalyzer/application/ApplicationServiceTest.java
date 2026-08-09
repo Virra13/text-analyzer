@@ -63,9 +63,7 @@ class ApplicationServiceTest {
         applicationService = new ApplicationService(
                 directoryScanner,
                 processors,
-                stopWordsReader,
-                consoleResultWriter,
-                jsonResultWriter
+                stopWordsReader
         );
     }
 
