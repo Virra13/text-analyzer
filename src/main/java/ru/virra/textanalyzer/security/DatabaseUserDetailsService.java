@@ -1,7 +1,6 @@
 package ru.virra.textanalyzer.security;
 
 import lombok.RequiredArgsConstructor;
-import org.jspecify.annotations.NullMarked;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -10,7 +9,7 @@ import org.springframework.stereotype.Service;
 import ru.virra.textanalyzer.persistence.entity.UserEntity;
 import ru.virra.textanalyzer.persistence.repository.UserRepository;
 
-@NullMarked
+
 @Service
 @RequiredArgsConstructor
 public class DatabaseUserDetailsService implements UserDetailsService {
@@ -31,5 +30,4 @@ public class DatabaseUserDetailsService implements UserDetailsService {
                 .password(userEntity.getPassword())
                 .build();
     }
-
 }

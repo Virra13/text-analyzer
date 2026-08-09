@@ -18,7 +18,6 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AnalysisController {
 
-    private final AnalysisRepository analysisRepository;
     private final AnalysisService analysisService;
 
     @PostMapping("/analyze")
