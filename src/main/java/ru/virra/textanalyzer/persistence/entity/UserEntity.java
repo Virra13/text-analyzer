@@ -31,6 +31,10 @@ public class UserEntity {
     @Column(nullable = false)
     private String password;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Role role;
+
     @OneToMany(mappedBy = "user")
     private List<AnalysisEntity> analysisEntities = new ArrayList<>();
 }

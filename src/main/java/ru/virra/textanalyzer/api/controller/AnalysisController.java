@@ -42,8 +42,8 @@ public class AnalysisController {
      * @return список анализов
      */
     @GetMapping("/results")
-    public List<AnalysisResponse> getAll() {
-        return analysisService.findAll();
+    public List<AnalysisResponse> getAll(Authentication authentication) {
+        return analysisService.findAll(authentication);
     }
 
     /**
@@ -53,7 +53,7 @@ public class AnalysisController {
      * @return данные анализа и его текущий статус
      */
     @GetMapping("/results/{id}")
-    public AnalysisResponse findById(@PathVariable UUID id) {
-        return analysisService.findById(id);
+    public AnalysisResponse findById(@PathVariable UUID id, Authentication authentication) {
+        return analysisService.findById(id, authentication);
     }
 }

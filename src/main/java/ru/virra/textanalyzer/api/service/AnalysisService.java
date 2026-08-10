@@ -81,11 +81,15 @@ public class AnalysisService {
      * @throws AnalysisNotFoundException если анализ не найден
      */
     @Transactional(readOnly = true)
-    public AnalysisResponse findById(UUID id) {
+    public AnalysisResponse findById(UUID id, Authentication authentication) {
         AnalysisEntity analysis = analysisRepository.findById(id)
                 .orElseThrow(() -> new AnalysisNotFoundException(id));
 
-        return analysisMapper.toResponse(analysis);
+        if (isAdmin(authentication) || analysis.getUser().getUsername().equals(authentication.getName())) {
+            return analysisMapper.toResponse(analysis);
+        }
+
+        throw new AnalysisNotFoundException(id);
     }
 
     /**
@@ -94,9 +98,20 @@ public class AnalysisService {
      * @return список анализов
      */
     @Transactional(readOnly = true)
-    public List<AnalysisResponse> findAll() {
-        return analysisRepository.findAll().stream()
+    public List<AnalysisResponse> findAll(Authentication authentication) {
+        if (isAdmin(authentication)) {
+            return analysisRepository.findAll().stream()
+                    .map(analysisMapper::toResponse)
+                    .toList();
+        }
+
+        return analysisRepository.findAllByUserUsername(authentication.getName()).stream()
                 .map(analysisMapper::toResponse)
                 .toList();
+    }
+
+    private boolean isAdmin(Authentication authentication) {
+        return authentication.getAuthorities().stream()
+                .anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN"));
     }
 }

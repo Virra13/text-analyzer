@@ -28,6 +28,7 @@ public class DatabaseUserDetailsService implements UserDetailsService {
         return User.builder()
                 .username(userEntity.getUsername())
                 .password(userEntity.getPassword())
+                .roles(userEntity.getRole().name())
                 .build();
     }
 }

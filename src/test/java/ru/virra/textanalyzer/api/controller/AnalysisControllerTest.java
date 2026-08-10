@@ -44,21 +44,21 @@ class AnalysisControllerTest {
     @Test
     void shouldStartAnalysis() throws Exception {
 
-        AnalysisResponse response = new AnalysisResponse(ANALYSIS_ID, AnalysisStatus.PENDING,null);
-        when(analysisService.create(any(AnalysisRequest.class),nullable(Authentication.class))).thenReturn(response);
+        AnalysisResponse response = new AnalysisResponse(ANALYSIS_ID, AnalysisStatus.PENDING, null);
+        when(analysisService.create(any(AnalysisRequest.class), nullable(Authentication.class))).thenReturn(response);
 
         mockMvc.perform(post("/api/analyze")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                            {
-                              "directory": "texts",
-                              "minWordLength": 3,
-                              "topCount": 10,
-                              "mode": "multi",
-                              "threads": 4,
-                              "stopWords": "config/stopwords.txt"
-                            }
-                            """))
+                                {
+                                  "directory": "texts",
+                                  "minWordLength": 3,
+                                  "topCount": 10,
+                                  "mode": "multi",
+                                  "threads": 4,
+                                  "stopWords": "config/stopwords.txt"
+                                }
+                                """))
                 .andExpect(status().isAccepted())
                 .andExpect(jsonPath("$.id").value(ANALYSIS_ID.toString()))
                 .andExpect(jsonPath("$.status").value("PENDING"))
@@ -79,14 +79,14 @@ class AnalysisControllerTest {
         mockMvc.perform(post("/api/analyze")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                            {
-                              "directory": "",
-                              "minWordLength": 3,
-                              "topCount": 0,
-                              "mode": "multi",
-                              "threads": 4
-                            }
-                            """))
+                                {
+                                  "directory": "",
+                                  "minWordLength": 3,
+                                  "topCount": 0,
+                                  "mode": "multi",
+                                  "threads": 4
+                                }
+                                """))
                 .andExpect(status().isBadRequest());
 
         verifyNoInteractions(analysisService);
@@ -95,9 +95,10 @@ class AnalysisControllerTest {
     @Test
     void shouldReturnAllAnalysis() throws Exception {
 
-        AnalysisResponse response1 = new AnalysisResponse(ANALYSIS_ID, AnalysisStatus.COMPLETED,null);
-        AnalysisResponse response2 = new AnalysisResponse(ANALYSIS_ID_2, AnalysisStatus.PENDING,null);
-        when(analysisService.findAll()).thenReturn(List.of(response1, response2));
+        AnalysisResponse response1 = new AnalysisResponse(ANALYSIS_ID, AnalysisStatus.COMPLETED, null);
+        AnalysisResponse response2 = new AnalysisResponse(ANALYSIS_ID_2, AnalysisStatus.PENDING, null);
+        when(analysisService.findAll(nullable(Authentication.class)))
+                .thenReturn(List.of(response1, response2));
 
         mockMvc.perform(get("/api/results"))
                 .andExpect(status().isOk())
@@ -107,13 +108,13 @@ class AnalysisControllerTest {
                 .andExpect(jsonPath("$[1].id").value(ANALYSIS_ID_2.toString()))
                 .andExpect(jsonPath("$[1].status").value("PENDING"));
 
-        verify(analysisService).findAll();
+        verify(analysisService).findAll(nullable(Authentication.class));
     }
 
     @Test
     void shouldReturnAnalysisById() throws Exception {
-        AnalysisResponse response = new AnalysisResponse(ANALYSIS_ID, AnalysisStatus.COMPLETED,null);
-        when(analysisService.findById(ANALYSIS_ID)).thenReturn(response);
+        AnalysisResponse response = new AnalysisResponse(ANALYSIS_ID, AnalysisStatus.COMPLETED, null);
+        when(analysisService.findById(ANALYSIS_ID, nullable(Authentication.class))).thenReturn(response);
 
         mockMvc.perform(get("/api/results/{id}", ANALYSIS_ID))
                 .andExpect(status().isOk())
@@ -121,6 +122,6 @@ class AnalysisControllerTest {
                 .andExpect(jsonPath("$.status").value("COMPLETED"))
                 .andExpect(jsonPath("$.result").doesNotExist());
 
-        verify(analysisService).findById(ANALYSIS_ID);
+        verify(analysisService).findById(eq(ANALYSIS_ID), nullable(Authentication.class));
     }
 }

@@ -7,6 +7,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import ru.virra.textanalyzer.analysis.application.ExecutionMode;
 import ru.virra.textanalyzer.api.dto.AnalysisRequest;
 import ru.virra.textanalyzer.api.dto.AnalysisResponse;
@@ -43,6 +44,8 @@ class AnalysisServiceTest {
     private AnalysisService analysisService;
     private static final UUID ANALYSIS_ID = UUID.fromString("f5d01536-3394-446a-a845-83b97ff83045");
     private static final UUID ANALYSIS_ID_2 = UUID.fromString("f5d01536-3394-446a-a845-83b97ff83046");
+    private UserEntity user;
+    private UserEntity otherUser;
 
     @BeforeEach
     void setUp() {
@@ -52,20 +55,66 @@ class AnalysisServiceTest {
                 userRepository,
                 analysisMapper
         );
+
+        user = new UserEntity();
+        user.setUsername("User1");
+
+        otherUser = new UserEntity();
+        otherUser.setUsername("User2");
     }
 
     @Test
-    void shouldReturnAnalysisById() {
+    void shouldReturnOwnAnalysisById() {
         AnalysisEntity analysis = new AnalysisEntity();
-        AnalysisResponse expectedResponse = new AnalysisResponse(
-                ANALYSIS_ID,
-                AnalysisStatus.COMPLETED,
-                null);
+        analysis.setUser(user);
 
+        AnalysisResponse expectedResponse = new AnalysisResponse(ANALYSIS_ID, AnalysisStatus.COMPLETED,null);
+
+        when(authentication.getName()).thenReturn("User1");
+        when(authentication.getAuthorities()).thenReturn(List.of());
         when(analysisRepository.findById(ANALYSIS_ID)).thenReturn(Optional.of(analysis));
         when(analysisMapper.toResponse(analysis)).thenReturn(expectedResponse);
 
-        AnalysisResponse actualResponse = analysisService.findById(ANALYSIS_ID);
+        AnalysisResponse actualResponse = analysisService.findById(ANALYSIS_ID, authentication);
+
+        assertSame(expectedResponse, actualResponse);
+
+        verify(analysisRepository).findById(ANALYSIS_ID);
+        verify(analysisMapper).toResponse(analysis);
+    }
+
+    @Test
+    void shouldThrowExceptionWhenUserRequestsAnotherUsersAnalysis() {
+        AnalysisEntity analysis = new AnalysisEntity();
+        analysis.setUser(otherUser);
+
+        when(authentication.getName()).thenReturn("User1");
+        when(authentication.getAuthorities()).thenReturn(List.of());
+        when(analysisRepository.findById(ANALYSIS_ID)).thenReturn(Optional.of(analysis));
+
+        assertThrows(
+                AnalysisNotFoundException.class,
+                () -> analysisService.findById(ANALYSIS_ID, authentication)
+        );
+
+        verify(analysisRepository).findById(ANALYSIS_ID);
+        verifyNoInteractions(analysisMapper);
+    }
+
+    @Test
+    void shouldReturnAnyAnalysisByIdForAdmin() {
+        AnalysisEntity analysis = new AnalysisEntity();
+        analysis.setUser(otherUser);
+
+        AnalysisResponse expectedResponse = new AnalysisResponse(ANALYSIS_ID, AnalysisStatus.COMPLETED, null);
+
+        doReturn(List.of(new SimpleGrantedAuthority("ROLE_ADMIN"))).when(authentication).getAuthorities();
+
+        when(analysisRepository.findById(ANALYSIS_ID)).thenReturn(Optional.of(analysis));
+
+        when(analysisMapper.toResponse(analysis)).thenReturn(expectedResponse);
+
+        AnalysisResponse actualResponse = analysisService.findById(ANALYSIS_ID, authentication);
 
         assertSame(expectedResponse, actualResponse);
 
@@ -79,7 +128,7 @@ class AnalysisServiceTest {
 
         assertThrows(
                 AnalysisNotFoundException.class,
-                () -> analysisService.findById(ANALYSIS_ID)
+                () -> analysisService.findById(ANALYSIS_ID, authentication)
         );
 
         verify(analysisRepository).findById(ANALYSIS_ID);
@@ -87,44 +136,64 @@ class AnalysisServiceTest {
     }
 
     @Test
-    void shouldReturnAllAnalysis() {
+    void shouldReturnAllAnalysisForAdmin() {
 
         AnalysisEntity analysis = new AnalysisEntity();
         AnalysisEntity analysis2 = new AnalysisEntity();
 
-        AnalysisResponse expectedResponse = new AnalysisResponse(
-                ANALYSIS_ID,
-                AnalysisStatus.COMPLETED,
-                null);
+        AnalysisResponse expectedResponse = new AnalysisResponse(ANALYSIS_ID, AnalysisStatus.COMPLETED,null);
+        AnalysisResponse expectedResponse2 = new AnalysisResponse(ANALYSIS_ID_2, AnalysisStatus.COMPLETED,null);
 
-        AnalysisResponse expectedResponse2 = new AnalysisResponse(
-                ANALYSIS_ID_2,
-                AnalysisStatus.COMPLETED,
-                null);
+        doReturn(List.of(new SimpleGrantedAuthority("ROLE_ADMIN"))).when(authentication).getAuthorities();
 
         when(analysisRepository.findAll()).thenReturn(List.of(analysis, analysis2));
         when(analysisMapper.toResponse(analysis)).thenReturn(expectedResponse);
         when(analysisMapper.toResponse(analysis2)).thenReturn(expectedResponse2);
 
-        List<AnalysisResponse> actualResponse = analysisService.findAll();
+        List<AnalysisResponse> actualResponse = analysisService.findAll(authentication);
 
         assertEquals(List.of(expectedResponse, expectedResponse2), actualResponse);
 
         verify(analysisRepository).findAll();
         verify(analysisMapper).toResponse(analysis);
         verify(analysisMapper).toResponse(analysis2);
+        verify(analysisRepository, never()).findAllByUserUsername(anyString());
     }
 
     @Test
-    void shouldReturnEmptyListWhenNoAnalysisFound() {
+    void shouldReturnOnlyOwnAnalysisForUser() {
+        AnalysisEntity analysis = new AnalysisEntity();
 
-        when(analysisRepository.findAll()).thenReturn(List.of());
+        AnalysisResponse expectedResponse = new AnalysisResponse(ANALYSIS_ID, AnalysisStatus.COMPLETED,null);
 
-        List<AnalysisResponse> actualResponse = analysisService.findAll();
+        when(authentication.getName()).thenReturn("User1");
+        when(authentication.getAuthorities()).thenReturn(List.of());
+
+        when(analysisRepository.findAllByUserUsername("User1")).thenReturn(List.of(analysis));
+        when(analysisMapper.toResponse(analysis)).thenReturn(expectedResponse);
+
+        List<AnalysisResponse> actualResponse = analysisService.findAll(authentication);
+
+        assertEquals(List.of(expectedResponse), actualResponse);
+
+        verify(analysisRepository).findAllByUserUsername("User1");
+        verify(analysisRepository, never()).findAll();
+        verify(analysisMapper).toResponse(analysis);
+    }
+
+    @Test
+    void shouldReturnEmptyListWhenUserHasNoAnalysis() {
+        when(authentication.getName()).thenReturn("User1");
+        when(authentication.getAuthorities()).thenReturn(List.of());
+
+        when(analysisRepository.findAllByUserUsername("User1")).thenReturn(List.of());
+
+        List<AnalysisResponse> actualResponse = analysisService.findAll(authentication);
 
         assertTrue(actualResponse.isEmpty());
 
-        verify(analysisRepository).findAll();
+        verify(analysisRepository).findAllByUserUsername("User1");
+        verify(analysisRepository, never()).findAll();
         verifyNoInteractions(analysisMapper);
     }
 
