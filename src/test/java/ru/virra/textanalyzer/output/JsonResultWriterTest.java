@@ -9,8 +9,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import ru.virra.textanalyzer.cli.output.JsonResultWriter;
 import ru.virra.textanalyzer.exception.FileProcessingException;
 import ru.virra.textanalyzer.analysis.model.AnalysisResult;
-import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 
 import java.io.IOException;
 import java.nio.file.Files;

@@ -196,13 +196,10 @@ class AnalysisPersistenceServiceTest {
     }
 
     @Test
-    void shouldThrowExceptionWhenAnalysisNotFoundForMarkFailed() {
+    void shouldDoNothingWhenAnalysisNotFoundForMarkFailed() {
         when(analysisRepository.findById(ANALYSIS_ID)).thenReturn(Optional.empty());
 
-        assertThrows(
-                NoSuchElementException.class,
-                () -> analysisPersistenceService.markFailed(ANALYSIS_ID)
-        );
+        analysisPersistenceService.markFailed(ANALYSIS_ID);
 
         verify(analysisRepository).findById(ANALYSIS_ID);
         verify(analysisRepository, never()).save(any(AnalysisEntity.class));

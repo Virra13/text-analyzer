@@ -41,6 +41,8 @@ public class AnalysisEntity {
     @Column(nullable = false)
     private int threads;
 
+    private String stopWords;
+
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
@@ -53,12 +55,20 @@ public class AnalysisEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;
 
+    @OneToMany(mappedBy = "analysis", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<FileErrorEntity> errors = new ArrayList<>();
+
     @OneToMany(mappedBy = "analysis", cascade = ALL, orphanRemoval = true)
     private List<WordResultEntity> words = new ArrayList<>();
 
     public void addWord(WordResultEntity word) {
         words.add(word);
         word.setAnalysis(this);
+    }
+
+    public void addError(FileErrorEntity error) {
+        errors.add(error);
+        error.setAnalysis(this);
     }
 
 }

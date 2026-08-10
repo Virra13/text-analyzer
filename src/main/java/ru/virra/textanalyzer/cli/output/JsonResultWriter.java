@@ -5,9 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.virra.textanalyzer.exception.FileProcessingException;
 import ru.virra.textanalyzer.analysis.model.AnalysisResult;
-import tools.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -37,7 +38,11 @@ public class JsonResultWriter {
 
         validate(path);
         File outputFile = path.toFile();
-        objectMapper.writerWithDefaultPrettyPrinter().writeValue(outputFile, analysisResult);
+        try {
+            objectMapper.writerWithDefaultPrettyPrinter().writeValue(outputFile, analysisResult);
+        } catch (IOException e) {
+            throw new FileProcessingException("Failed to write analysis result to: " + path, e);
+        }
         log.info("Analysis result written successfully to: {}",path);
     }
 

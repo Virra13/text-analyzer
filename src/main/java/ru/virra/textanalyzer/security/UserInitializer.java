@@ -1,7 +1,6 @@
 package ru.virra.textanalyzer.security;
 
 import lombok.RequiredArgsConstructor;
-import org.jspecify.annotations.NonNull;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,7 +18,7 @@ public class UserInitializer implements ApplicationRunner {
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    public void run(@NonNull ApplicationArguments args) {
+    public void run(ApplicationArguments args) {
         createUserIfMissing("User1", "11111");
         createUserIfMissing("User2", "22222");
     }

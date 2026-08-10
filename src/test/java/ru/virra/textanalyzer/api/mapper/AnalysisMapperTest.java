@@ -73,8 +73,8 @@ class AnalysisMapperTest {
 
         assertAll(
                 () -> assertEquals(1, analysisResponse.result().wordCount().size()),
-                () -> assertEquals("java", analysisResponse.result().wordCount().getFirst().word()),
-                () -> assertEquals(5, analysisResponse.result().wordCount().getFirst().count())
+                () -> assertEquals("java", analysisResponse.result().wordCount().get(0).word()),
+                () -> assertEquals(5, analysisResponse.result().wordCount().get(0).count())
         );
 
         assertAll(

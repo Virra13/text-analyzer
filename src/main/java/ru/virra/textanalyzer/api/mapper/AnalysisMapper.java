@@ -32,6 +32,13 @@ public class AnalysisMapper {
                 ))
                 .toList();
 
+        List<FileReadError> errors = analysis.getErrors().stream()
+                .map(error -> new FileReadError(
+                        error.getFileName(),
+                        error.getMessage()
+                ))
+                .toList();
+
         AnalysisInfo info = new AnalysisInfo(
                 Path.of(analysis.getDirectory()),
                 analysis.getMinWordLength(),
@@ -45,7 +52,7 @@ public class AnalysisMapper {
         AnalysisResult result = new AnalysisResult(
                 info,
                 words,
-                List.<FileReadError>of()
+                errors
         );
 
         return new AnalysisResponse(

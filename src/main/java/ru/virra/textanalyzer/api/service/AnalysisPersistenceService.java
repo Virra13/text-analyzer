@@ -7,8 +7,10 @@ import ru.virra.textanalyzer.analysis.application.AnalysisConfig;
 import ru.virra.textanalyzer.analysis.application.ExecutionMode;
 import ru.virra.textanalyzer.analysis.model.AnalysisInfo;
 import ru.virra.textanalyzer.analysis.model.AnalysisResult;
+import ru.virra.textanalyzer.analysis.model.FileReadError;
 import ru.virra.textanalyzer.persistence.entity.AnalysisEntity;
 import ru.virra.textanalyzer.persistence.entity.AnalysisStatus;
+import ru.virra.textanalyzer.persistence.entity.FileErrorEntity;
 import ru.virra.textanalyzer.persistence.entity.WordResultEntity;
 import ru.virra.textanalyzer.persistence.repository.AnalysisRepository;
 
@@ -39,7 +41,7 @@ public class AnalysisPersistenceService {
                 .minLength(analysis.getMinWordLength())
                 .top(analysis.getTopCount())
                 .output(null)
-                .stopWords(null)
+                .stopWords(analysis.getStopWords() != null ? Path.of(analysis.getStopWords()) : null)
                 .threads(analysis.getThreads())
                 .mode(ExecutionMode.fromString(analysis.getMode()))
                 .build();
@@ -54,6 +56,13 @@ public class AnalysisPersistenceService {
             wordEntity.setWord(word.word());
             wordEntity.setWordCount(word.count());
             analysis.addWord(wordEntity);
+        }
+
+        for (var error : analysisResult.errors()) {
+            FileErrorEntity errorEntity = new FileErrorEntity();
+            errorEntity.setFileName(error.fileName());
+            errorEntity.setMessage(error.message());
+            analysis.addError(errorEntity);
         }
 
         AnalysisInfo info = analysisResult.analysisInfo();

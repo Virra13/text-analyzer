@@ -2,7 +2,6 @@ package ru.virra.textanalyzer.api.dto;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 
 public record AnalysisRequest(
         @NotBlank
@@ -14,10 +13,17 @@ public record AnalysisRequest(
         @Min(1)
         int topCount,
 
-        @NotNull
+        @NotBlank
         String mode,
 
         @Min(1)
-        int threads
+        Integer threads,
+
+        String stopWords
 ) {
+
+        public int resolvedThreads() {
+                return threads != null ? threads : 2;
+        }
+
 }

@@ -97,7 +97,7 @@ public class CliService {
             throw new InvalidArgumentsException("Error: option '--" + name + "' specified more than once.");
         }
 
-        String value = list.getFirst();
+        String value = list.get(0);
 
         if (value == null || value.isBlank()) {
             throw new InvalidArgumentsException("Error: option '--" + name + "' has an empty value.");

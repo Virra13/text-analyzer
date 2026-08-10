@@ -36,7 +36,8 @@ public class AnalysisService {
         analysis.setMinWordLength(request.minWordLength());
         analysis.setTopCount(request.topCount());
         analysis.setMode(request.mode());
-        analysis.setThreads(request.threads());
+        analysis.setThreads(request.resolvedThreads());
+        analysis.setStopWords(request.stopWords());
 
         UserEntity user = userRepository
                 .findByUsername(authentication.getName())
