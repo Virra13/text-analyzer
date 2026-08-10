@@ -31,3 +31,7 @@ build/
 
 ### VS Code ###
 .vscode/
+
+data/text-analyzer.mv.db
+data/text-analyzer.trace.db
+result.json
