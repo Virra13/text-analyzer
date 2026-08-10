@@ -1,7 +1,8 @@
-spring.application.name:
-  text-analyzer
-
 spring:
+
+  application:
+    name: text-analyzer
+
   main:
     web-application-type: servlet
 

@@ -15,7 +15,22 @@ public class CliExecutorConfig {
     private static final int DEFAULT_THREADS = 2;
 
     @Bean(destroyMethod = "shutdown")
-    public ExecutorService analysisExecutor(@Value("${threads:" + DEFAULT_THREADS + "}") int threads) {
+    public ExecutorService analysisExecutor(@Value("${threads:}") String threadsValue) {
+        int threads = parseThreadsOrDefault(threadsValue);
         return Executors.newFixedThreadPool(threads);
+    }
+
+    private int parseThreadsOrDefault(String value) {
+        try {
+            int threads = Integer.parseInt(value);
+
+            if (threads > 0) {
+                return threads;
+            }
+        } catch (NumberFormatException ignored) {
+
+        }
+
+        return DEFAULT_THREADS;
     }
 }

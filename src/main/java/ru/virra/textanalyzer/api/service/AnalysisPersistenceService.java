@@ -1,6 +1,7 @@
 package ru.virra.textanalyzer.api.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.virra.textanalyzer.analysis.application.AnalysisConfig;
@@ -27,6 +28,7 @@ import java.util.UUID;
  */
 @Service
 @RequiredArgsConstructor
+@Profile("rest")
 public class AnalysisPersistenceService {
 
     private final AnalysisRepository analysisRepository;

@@ -12,10 +12,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
+@Profile("rest")
 public class SecurityConfig {
 
     @Bean
-    @Profile("rest")
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         return http

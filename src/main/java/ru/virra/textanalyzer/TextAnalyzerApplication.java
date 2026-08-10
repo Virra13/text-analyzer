@@ -2,6 +2,8 @@ package ru.virra.textanalyzer;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.core.env.Profiles;
 import org.springframework.scheduling.annotation.EnableAsync;
 
 /**
@@ -23,6 +25,10 @@ public class TextAnalyzerApplication {
      * @param args аргументы командной строки
      */
     public static void main(String[] args) {
-        SpringApplication.run(TextAnalyzerApplication.class, args);
+        ConfigurableApplicationContext context = SpringApplication.run(TextAnalyzerApplication.class, args);
+
+        if (!context.getEnvironment().acceptsProfiles(Profiles.of("rest"))) {
+            context.close();
+        }
     }
 }

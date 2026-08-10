@@ -1,5 +1,6 @@
 package ru.virra.textanalyzer.api.service;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -26,6 +27,7 @@ import java.util.UUID;
  */
 @Service
 @RequiredArgsConstructor
+@Profile("rest")
 public class AnalysisService {
     private final AnalysisRepository analysisRepository;
     private final AsyncAnalysisService asyncAnalysisService;

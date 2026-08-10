@@ -28,7 +28,6 @@ public class DirectoryScanner {
      */
     public List<Path> scan(Path path) {
 
-        log.info("Scanning directory: {}", path);
         validateDirectory(path);
 
         try (Stream<Path> files = Files.list(path)) {

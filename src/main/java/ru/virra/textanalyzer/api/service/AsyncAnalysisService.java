@@ -2,6 +2,7 @@ package ru.virra.textanalyzer.api.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import ru.virra.textanalyzer.analysis.application.AnalysisConfig;
@@ -22,6 +23,7 @@ import java.util.UUID;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Profile("rest")
 public class AsyncAnalysisService {
     private final ApplicationService applicationService;
     private final AnalysisPersistenceService analysisPersistenceService;

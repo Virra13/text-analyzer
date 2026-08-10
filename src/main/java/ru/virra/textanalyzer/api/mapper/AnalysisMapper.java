@@ -1,5 +1,6 @@
 package ru.virra.textanalyzer.api.mapper;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import ru.virra.textanalyzer.analysis.application.ExecutionMode;
 import ru.virra.textanalyzer.api.dto.AnalysisResponse;
@@ -17,6 +18,7 @@ import java.util.List;
  * Преобразует сущности анализа из слоя хранения в модели REST API.
  */
 @Component
+@Profile("rest")
 public class AnalysisMapper {
 
     /**

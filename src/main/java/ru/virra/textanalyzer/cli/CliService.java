@@ -30,6 +30,7 @@ public class CliService {
     private static final String STOPWORDS = "stopwords";
     private static final String THREADS = "threads";
     private static final String MODE = "mode";
+    public static final int DEFAULT_THREADS = 2;
 
     /**
      * Разбирает параметры запуска и формирует конфигурацию анализа.
@@ -153,7 +154,7 @@ public class CliService {
 
     private int getThreads(ApplicationArguments args) {
         if (!args.containsOption(THREADS)) {
-            return 2;
+            return DEFAULT_THREADS;
         }
 
         return getPositiveInt(args, THREADS);
