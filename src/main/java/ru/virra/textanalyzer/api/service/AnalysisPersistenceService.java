@@ -108,9 +108,10 @@ public class AnalysisPersistenceService {
      * @param analysisId идентификатор анализа
      */
     @Transactional
-    public void markFailed(UUID analysisId) {
+    public void markFailed(UUID analysisId, String failureMessage) {
         analysisRepository.findById(analysisId).ifPresent(analysis -> {
             analysis.setStatus(AnalysisStatus.FAILED);
+            analysis.setFailureMessage(failureMessage);
             analysis.setCompletedAt(LocalDateTime.now());
             analysisRepository.save(analysis);
         });

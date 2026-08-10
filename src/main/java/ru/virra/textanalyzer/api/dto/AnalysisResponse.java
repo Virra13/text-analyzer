@@ -1,5 +1,6 @@
 package ru.virra.textanalyzer.api.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import ru.virra.textanalyzer.analysis.model.AnalysisResult;
 import ru.virra.textanalyzer.persistence.entity.AnalysisStatus;
 
@@ -14,9 +15,11 @@ import java.util.UUID;
  * @param status текущий статус анализа
  * @param result результат анализа или {@code null}, если анализ ещё не завершён
  */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public record AnalysisResponse(
         UUID id,
         AnalysisStatus status,
-        AnalysisResult result
+        AnalysisResult result,
+        String failureMessage
 ) {
 }

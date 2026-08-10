@@ -45,7 +45,7 @@ public class AsyncAnalysisService {
             analysisPersistenceService.complete(analysisId, analysisResult);
 
         } catch (RuntimeException e) {
-            analysisPersistenceService.markFailed(analysisId);
+            analysisPersistenceService.markFailed(analysisId, e.getMessage());
             log.error("Analysis {} failed", analysisId, e);
         }
     }

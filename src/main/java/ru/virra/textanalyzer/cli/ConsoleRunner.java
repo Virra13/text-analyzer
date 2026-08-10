@@ -6,6 +6,7 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
+import ru.virra.textanalyzer.exception.FileProcessingException;
 import ru.virra.textanalyzer.exception.InvalidArgumentsException;
 import ru.virra.textanalyzer.analysis.application.AnalysisConfig;
 import ru.virra.textanalyzer.analysis.application.ApplicationService;
@@ -22,7 +23,7 @@ import ru.virra.textanalyzer.cli.output.JsonResultWriter;
  * от указанной конфигурации.</p>
  */
 @Slf4j
-@Profile("cli")
+@Profile("!rest")
 @RequiredArgsConstructor
 @Component
 public class ConsoleRunner implements ApplicationRunner {
@@ -73,6 +74,11 @@ public class ConsoleRunner implements ApplicationRunner {
             System.err.println("Use --help to see available options.");
 
             log.warn("Invalid command-line arguments: {}", e.getMessage());
+
+        } catch (FileProcessingException e) {
+            System.err.println(e.getMessage());
+
+            log.error("File processing error: {}", e.getMessage());
         }
     }
 }

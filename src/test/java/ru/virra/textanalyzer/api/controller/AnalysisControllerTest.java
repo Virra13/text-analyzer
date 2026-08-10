@@ -8,6 +8,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -15,6 +16,7 @@ import ru.virra.textanalyzer.analysis.application.ExecutionMode;
 import ru.virra.textanalyzer.api.dto.AnalysisRequest;
 import ru.virra.textanalyzer.api.dto.AnalysisResponse;
 import ru.virra.textanalyzer.api.service.AnalysisService;
+import ru.virra.textanalyzer.exception.AnalysisNotFoundException;
 import ru.virra.textanalyzer.persistence.entity.AnalysisStatus;
 
 import java.util.List;
@@ -30,6 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(AnalysisController.class)
 @AutoConfigureMockMvc(addFilters = false)
+@ActiveProfiles("rest")
 class AnalysisControllerTest {
 
     @Autowired
@@ -44,7 +47,7 @@ class AnalysisControllerTest {
     @Test
     void shouldStartAnalysis() throws Exception {
 
-        AnalysisResponse response = new AnalysisResponse(ANALYSIS_ID, AnalysisStatus.PENDING, null);
+        AnalysisResponse response = new AnalysisResponse(ANALYSIS_ID, AnalysisStatus.PENDING, null, null);
         when(analysisService.create(any(AnalysisRequest.class), nullable(Authentication.class))).thenReturn(response);
 
         mockMvc.perform(post("/api/analyze")
@@ -87,7 +90,8 @@ class AnalysisControllerTest {
                                   "threads": 4
                                 }
                                 """))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").exists());
 
         verifyNoInteractions(analysisService);
     }
@@ -95,8 +99,8 @@ class AnalysisControllerTest {
     @Test
     void shouldReturnAllAnalysis() throws Exception {
 
-        AnalysisResponse response1 = new AnalysisResponse(ANALYSIS_ID, AnalysisStatus.COMPLETED, null);
-        AnalysisResponse response2 = new AnalysisResponse(ANALYSIS_ID_2, AnalysisStatus.PENDING, null);
+        AnalysisResponse response1 = new AnalysisResponse(ANALYSIS_ID, AnalysisStatus.COMPLETED, null, null);
+        AnalysisResponse response2 = new AnalysisResponse(ANALYSIS_ID_2, AnalysisStatus.PENDING, null, null);
         when(analysisService.findAll(nullable(Authentication.class)))
                 .thenReturn(List.of(response1, response2));
 
@@ -113,8 +117,8 @@ class AnalysisControllerTest {
 
     @Test
     void shouldReturnAnalysisById() throws Exception {
-        AnalysisResponse response = new AnalysisResponse(ANALYSIS_ID, AnalysisStatus.COMPLETED, null);
-        when(analysisService.findById(ANALYSIS_ID, nullable(Authentication.class))).thenReturn(response);
+        AnalysisResponse response = new AnalysisResponse(ANALYSIS_ID, AnalysisStatus.COMPLETED, null, null);
+        when(analysisService.findById(eq(ANALYSIS_ID), nullable(Authentication.class))).thenReturn(response);
 
         mockMvc.perform(get("/api/results/{id}", ANALYSIS_ID))
                 .andExpect(status().isOk())
@@ -123,5 +127,27 @@ class AnalysisControllerTest {
                 .andExpect(jsonPath("$.result").doesNotExist());
 
         verify(analysisService).findById(eq(ANALYSIS_ID), nullable(Authentication.class));
+    }
+
+    @Test
+    void shouldReturnNotFoundWhenAnalysisDoesNotExist() throws Exception {
+
+        when(analysisService.findById(eq(ANALYSIS_ID),nullable(Authentication.class))).thenThrow(new AnalysisNotFoundException(ANALYSIS_ID));
+
+        mockMvc.perform(get("/api/results/{id}", ANALYSIS_ID))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error").value("Analysis not found: " + ANALYSIS_ID));
+
+        verify(analysisService).findById(eq(ANALYSIS_ID), nullable(Authentication.class));
+    }
+
+    @Test
+    void shouldReturnBadRequestForInvalidAnalysisId() throws Exception {
+
+        mockMvc.perform(get("/api/results/not-a-uuid"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").exists());
+
+        verifyNoInteractions(analysisService);
     }
 }

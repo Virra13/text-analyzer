@@ -66,11 +66,7 @@ public class AnalysisService {
         AnalysisEntity saved = analysisRepository.save(analysis);
         asyncAnalysisService.analyze(saved.getId());
 
-        return new AnalysisResponse(
-                saved.getId(),
-                saved.getStatus(),
-                null
-        );
+        return new AnalysisResponse(saved.getId(), saved.getStatus(),null,null);
     }
 
     /**

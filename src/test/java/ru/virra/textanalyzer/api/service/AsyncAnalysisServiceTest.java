@@ -49,7 +49,7 @@ class AsyncAnalysisServiceTest {
         inOrder.verify(analysisPersistenceService).markRunning(ANALYSIS_ID);
         inOrder.verify(applicationService).go(config);
         inOrder.verify(analysisPersistenceService).complete(ANALYSIS_ID, analysisResult);
-        verify(analysisPersistenceService, never()).markFailed(ANALYSIS_ID);
+        verify(analysisPersistenceService, never()).markFailed(eq(ANALYSIS_ID), anyString());
     }
 
     @Test
@@ -66,7 +66,7 @@ class AsyncAnalysisServiceTest {
         inOrder.verify(analysisPersistenceService).getConfig(ANALYSIS_ID);
         inOrder.verify(analysisPersistenceService).markRunning(ANALYSIS_ID);
         inOrder.verify(applicationService).go(config);
-        inOrder.verify(analysisPersistenceService).markFailed(ANALYSIS_ID);
+        inOrder.verify(analysisPersistenceService).markFailed(ANALYSIS_ID, "Analysis failed");
 
         verify(analysisPersistenceService, never()).complete(eq(ANALYSIS_ID), any(AnalysisResult.class));
     }

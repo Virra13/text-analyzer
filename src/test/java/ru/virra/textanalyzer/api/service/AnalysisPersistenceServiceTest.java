@@ -195,7 +195,7 @@ class AnalysisPersistenceServiceTest {
 
         when(analysisRepository.findById(ANALYSIS_ID)).thenReturn(Optional.of(analysis));
 
-        analysisPersistenceService.markFailed(ANALYSIS_ID);
+        analysisPersistenceService.markFailed(ANALYSIS_ID, "Test failure");
 
         ArgumentCaptor<AnalysisEntity> captor = ArgumentCaptor.forClass(AnalysisEntity.class);
         verify(analysisRepository).save(captor.capture());
@@ -205,7 +205,8 @@ class AnalysisPersistenceServiceTest {
         assertAll(
                 () -> assertEquals(ANALYSIS_ID, savedAnalysis.getId()),
                 () -> assertEquals(AnalysisStatus.FAILED, savedAnalysis.getStatus()),
-                () -> assertNotNull(savedAnalysis.getCompletedAt())
+                () -> assertNotNull(savedAnalysis.getCompletedAt()),
+                () -> assertEquals("Test failure", savedAnalysis.getFailureMessage())
         );
 
         verify(analysisRepository).findById(ANALYSIS_ID);
@@ -215,7 +216,7 @@ class AnalysisPersistenceServiceTest {
     void shouldDoNothingWhenAnalysisNotFoundForMarkFailed() {
         when(analysisRepository.findById(ANALYSIS_ID)).thenReturn(Optional.empty());
 
-        analysisPersistenceService.markFailed(ANALYSIS_ID);
+        analysisPersistenceService.markFailed(ANALYSIS_ID, "Test failure");
 
         verify(analysisRepository).findById(ANALYSIS_ID);
         verify(analysisRepository, never()).save(any(AnalysisEntity.class));

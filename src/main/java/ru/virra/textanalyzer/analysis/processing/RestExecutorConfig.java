@@ -2,6 +2,7 @@ package ru.virra.textanalyzer.analysis.processing;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -14,7 +15,8 @@ import java.util.concurrent.Executors;
  * и завершается при остановке приложения.</p>
  */
 @Configuration
-public class ExecutorConfig {
+@Profile("rest")
+public class RestExecutorConfig {
 
     @Bean(destroyMethod = "shutdown")
     public ExecutorService analysisExecutor() {

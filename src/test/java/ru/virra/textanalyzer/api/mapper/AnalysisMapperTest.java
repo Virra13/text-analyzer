@@ -29,7 +29,7 @@ class AnalysisMapperTest {
     @ParameterizedTest
     @EnumSource(
             value = AnalysisStatus.class,
-            names = {"PENDING", "RUNNING", "FAILED"}
+            names = {"PENDING", "RUNNING"}
     )
     void shouldReturnNullResultForUncompletedAnalysis(AnalysisStatus status) {
         AnalysisEntity analysis = new AnalysisEntity();
@@ -74,7 +74,8 @@ class AnalysisMapperTest {
 
         assertAll(
                 () -> assertEquals(ANALYSIS_ID, analysisResponse.id()),
-                () -> assertEquals(AnalysisStatus.COMPLETED, analysisResponse.status())
+                () -> assertEquals(AnalysisStatus.COMPLETED, analysisResponse.status()),
+                () -> assertNull(analysisResponse.failureMessage())
         );
 
         assertAll(
@@ -97,6 +98,23 @@ class AnalysisMapperTest {
                 () -> assertEquals(4, analysisResponse.result().analysisInfo().threads()),
                 () -> assertEquals(3, analysisResponse.result().analysisInfo().processedFiles()),
                 () -> assertEquals(7L, analysisResponse.result().analysisInfo().executionTimeMs())
+        );
+    }
+
+    @Test
+    void shouldReturnFailureMessageForFailedAnalysis() {
+        AnalysisEntity analysis = new AnalysisEntity();
+        analysis.setId(ANALYSIS_ID);
+        analysis.setStatus(AnalysisStatus.FAILED);
+        analysis.setFailureMessage("Analysis failed");
+
+        AnalysisResponse analysisResponse = analysisMapper.toResponse(analysis);
+
+        assertAll(
+                () -> assertEquals(ANALYSIS_ID, analysisResponse.id()),
+                () -> assertEquals(AnalysisStatus.FAILED, analysisResponse.status()),
+                () -> assertNull(analysisResponse.result()),
+                () -> assertEquals("Analysis failed", analysisResponse.failureMessage())
         );
     }
 }

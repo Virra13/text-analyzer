@@ -68,7 +68,7 @@ class AnalysisServiceTest {
         AnalysisEntity analysis = new AnalysisEntity();
         analysis.setUser(user);
 
-        AnalysisResponse expectedResponse = new AnalysisResponse(ANALYSIS_ID, AnalysisStatus.COMPLETED,null);
+        AnalysisResponse expectedResponse = new AnalysisResponse(ANALYSIS_ID, AnalysisStatus.COMPLETED,null, null);
 
         when(authentication.getName()).thenReturn("User1");
         when(authentication.getAuthorities()).thenReturn(List.of());
@@ -106,7 +106,7 @@ class AnalysisServiceTest {
         AnalysisEntity analysis = new AnalysisEntity();
         analysis.setUser(otherUser);
 
-        AnalysisResponse expectedResponse = new AnalysisResponse(ANALYSIS_ID, AnalysisStatus.COMPLETED, null);
+        AnalysisResponse expectedResponse = new AnalysisResponse(ANALYSIS_ID, AnalysisStatus.COMPLETED, null, null);
 
         doReturn(List.of(new SimpleGrantedAuthority("ROLE_ADMIN"))).when(authentication).getAuthorities();
 
@@ -141,8 +141,8 @@ class AnalysisServiceTest {
         AnalysisEntity analysis = new AnalysisEntity();
         AnalysisEntity analysis2 = new AnalysisEntity();
 
-        AnalysisResponse expectedResponse = new AnalysisResponse(ANALYSIS_ID, AnalysisStatus.COMPLETED,null);
-        AnalysisResponse expectedResponse2 = new AnalysisResponse(ANALYSIS_ID_2, AnalysisStatus.COMPLETED,null);
+        AnalysisResponse expectedResponse = new AnalysisResponse(ANALYSIS_ID, AnalysisStatus.COMPLETED,null, null);
+        AnalysisResponse expectedResponse2 = new AnalysisResponse(ANALYSIS_ID_2, AnalysisStatus.COMPLETED,null, null);
 
         doReturn(List.of(new SimpleGrantedAuthority("ROLE_ADMIN"))).when(authentication).getAuthorities();
 
@@ -164,7 +164,7 @@ class AnalysisServiceTest {
     void shouldReturnOnlyOwnAnalysisForUser() {
         AnalysisEntity analysis = new AnalysisEntity();
 
-        AnalysisResponse expectedResponse = new AnalysisResponse(ANALYSIS_ID, AnalysisStatus.COMPLETED,null);
+        AnalysisResponse expectedResponse = new AnalysisResponse(ANALYSIS_ID, AnalysisStatus.COMPLETED,null, null);
 
         when(authentication.getName()).thenReturn("User1");
         when(authentication.getAuthorities()).thenReturn(List.of());

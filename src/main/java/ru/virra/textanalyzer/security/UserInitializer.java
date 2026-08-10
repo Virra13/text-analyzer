@@ -3,6 +3,7 @@ package ru.virra.textanalyzer.security;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import ru.virra.textanalyzer.persistence.entity.Role;
@@ -11,6 +12,7 @@ import ru.virra.textanalyzer.persistence.repository.UserRepository;
 
 import java.time.LocalDateTime;
 
+@Profile("rest")
 @Component
 @RequiredArgsConstructor
 public class UserInitializer implements ApplicationRunner {

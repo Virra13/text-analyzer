@@ -47,6 +47,8 @@ public class AnalysisEntity {
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
+
+    private String failureMessage;
     private LocalDateTime startedAt;
     private LocalDateTime completedAt;
     private Long executionTimeMs;

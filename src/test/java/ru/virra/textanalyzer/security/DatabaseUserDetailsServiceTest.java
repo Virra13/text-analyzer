@@ -7,6 +7,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import ru.virra.textanalyzer.persistence.entity.Role;
 import ru.virra.textanalyzer.persistence.entity.UserEntity;
 import ru.virra.textanalyzer.persistence.repository.UserRepository;
 
@@ -34,6 +35,7 @@ class DatabaseUserDetailsServiceTest {
         UserEntity user = new UserEntity();
         user.setUsername("User");
         user.setPassword("encodedPassword");
+        user.setRole(Role.USER);
 
         when(userRepository.findByUsername("User")).thenReturn(Optional.of(user));
 
@@ -41,7 +43,10 @@ class DatabaseUserDetailsServiceTest {
 
         assertAll(
                 () -> assertEquals("User", result.getUsername()),
-                () -> assertEquals("encodedPassword", result.getPassword())
+                () -> assertEquals("encodedPassword", result.getPassword()),
+                () -> assertTrue(result.getAuthorities().stream()
+                        .anyMatch(authority -> authority.getAuthority().equals("ROLE_USER")))
+
         );
 
         verify(userRepository).findByUsername("User");

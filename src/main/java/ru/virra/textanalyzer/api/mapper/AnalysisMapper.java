@@ -32,7 +32,7 @@ public class AnalysisMapper {
     public AnalysisResponse toResponse(AnalysisEntity analysis) {
 
         if (analysis.getStatus() != AnalysisStatus.COMPLETED) {
-            return new AnalysisResponse(analysis.getId(), analysis.getStatus(),null);
+            return new AnalysisResponse(analysis.getId(), analysis.getStatus(),null, analysis.getFailureMessage());
         }
 
         List<WordCount> words = analysis.getWords().stream()
@@ -61,6 +61,6 @@ public class AnalysisMapper {
 
         AnalysisResult result = new AnalysisResult(info, words, errors);
 
-        return new AnalysisResponse(analysis.getId(), analysis.getStatus(), result);
+        return new AnalysisResponse(analysis.getId(), analysis.getStatus(), result,  null);
     }
 }
