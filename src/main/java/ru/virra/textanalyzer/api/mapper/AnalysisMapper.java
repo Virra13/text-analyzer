@@ -43,7 +43,7 @@ public class AnalysisMapper {
                 Path.of(analysis.getDirectory()),
                 analysis.getMinWordLength(),
                 analysis.getTopCount(),
-                ExecutionMode.fromString(analysis.getMode()),
+                analysis.getMode(),
                 analysis.getThreads(),
                 analysis.getProcessedFiles(),
                 analysis.getExecutionTimeMs()

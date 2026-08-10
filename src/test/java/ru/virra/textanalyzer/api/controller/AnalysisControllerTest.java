@@ -2,6 +2,7 @@ package ru.virra.textanalyzer.api.controller;
 
 import org.junit.jupiter.api.Test;
 
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -10,6 +11,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import ru.virra.textanalyzer.analysis.application.ExecutionMode;
 import ru.virra.textanalyzer.api.dto.AnalysisRequest;
 import ru.virra.textanalyzer.api.dto.AnalysisResponse;
 import ru.virra.textanalyzer.api.service.AnalysisService;
@@ -18,6 +20,7 @@ import ru.virra.textanalyzer.persistence.entity.AnalysisStatus;
 import java.util.List;
 import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.*;
@@ -52,7 +55,8 @@ class AnalysisControllerTest {
                               "minWordLength": 3,
                               "topCount": 10,
                               "mode": "multi",
-                              "threads": 4
+                              "threads": 4,
+                              "stopWords": "config/stopwords.txt"
                             }
                             """))
                 .andExpect(status().isAccepted())
@@ -60,7 +64,13 @@ class AnalysisControllerTest {
                 .andExpect(jsonPath("$.status").value("PENDING"))
                 .andExpect(jsonPath("$.result").doesNotExist());
 
-        verify(analysisService).create(any(AnalysisRequest.class), nullable(Authentication.class));
+        ArgumentCaptor<AnalysisRequest> requestCaptor = ArgumentCaptor.forClass(AnalysisRequest.class);
+        verify(analysisService).create(requestCaptor.capture(), nullable(Authentication.class));
+        AnalysisRequest request = requestCaptor.getValue();
+
+        assertEquals("config/stopwords.txt", request.stopWords());
+        assertEquals(ExecutionMode.MULTI, request.mode());
+        assertEquals(4, request.threads());
     }
 
     @Test

@@ -1,5 +1,6 @@
 package ru.virra.textanalyzer.analysis.application;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.Getter;
 
 @Getter
@@ -13,6 +14,7 @@ public enum ExecutionMode {
         this.value = value;
     }
 
+    @JsonCreator
     public static ExecutionMode fromString(String value) {
         for (ExecutionMode mode : values()) {
             if (mode.value.equalsIgnoreCase(value)) {
@@ -20,6 +22,6 @@ public enum ExecutionMode {
             }
         }
 
-        throw new IllegalArgumentException();
+        throw new IllegalArgumentException("Unknown execution mode: " + value);
     }
 }

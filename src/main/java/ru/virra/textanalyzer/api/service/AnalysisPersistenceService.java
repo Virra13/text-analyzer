@@ -43,7 +43,7 @@ public class AnalysisPersistenceService {
                 .output(null)
                 .stopWords(analysis.getStopWords() != null ? Path.of(analysis.getStopWords()) : null)
                 .threads(analysis.getThreads())
-                .mode(ExecutionMode.fromString(analysis.getMode()))
+                .mode(analysis.getMode())
                 .build();
     }
 

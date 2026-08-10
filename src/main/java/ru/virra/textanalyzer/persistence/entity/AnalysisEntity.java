@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import ru.virra.textanalyzer.analysis.application.ExecutionMode;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -36,7 +37,7 @@ public class AnalysisEntity {
     private int topCount;
 
     @Column(nullable = false)
-    private String mode;
+    private ExecutionMode mode;
 
     @Column(nullable = false)
     private int threads;

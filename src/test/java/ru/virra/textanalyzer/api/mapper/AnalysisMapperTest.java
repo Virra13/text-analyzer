@@ -8,6 +8,7 @@ import ru.virra.textanalyzer.analysis.application.ExecutionMode;
 import ru.virra.textanalyzer.api.dto.AnalysisResponse;
 import ru.virra.textanalyzer.persistence.entity.AnalysisEntity;
 import ru.virra.textanalyzer.persistence.entity.AnalysisStatus;
+import ru.virra.textanalyzer.persistence.entity.FileErrorEntity;
 import ru.virra.textanalyzer.persistence.entity.WordResultEntity;
 
 import java.util.UUID;
@@ -52,7 +53,7 @@ class AnalysisMapperTest {
         analysis.setDirectory("texts");
         analysis.setMinWordLength(3);
         analysis.setTopCount(10);
-        analysis.setMode("multi");
+        analysis.setMode(ExecutionMode.MULTI);
         analysis.setThreads(4);
         analysis.setProcessedFiles(3);
         analysis.setExecutionTimeMs(7L);
@@ -61,6 +62,11 @@ class AnalysisMapperTest {
         word.setWord("java");
         word.setWordCount(5);
         analysis.addWord(word);
+
+        FileErrorEntity error = new FileErrorEntity();
+        error.setFileName("broken.txt");
+        error.setMessage("Access denied");
+        analysis.addError(error);
 
         AnalysisResponse analysisResponse = analysisMapper.toResponse(analysis);
 
@@ -75,6 +81,12 @@ class AnalysisMapperTest {
                 () -> assertEquals(1, analysisResponse.result().wordCount().size()),
                 () -> assertEquals("java", analysisResponse.result().wordCount().get(0).word()),
                 () -> assertEquals(5, analysisResponse.result().wordCount().get(0).count())
+        );
+
+        assertAll(
+                () -> assertEquals(1, analysisResponse.result().errors().size()),
+                () -> assertEquals("broken.txt", analysisResponse.result().errors().get(0).fileName()),
+                () -> assertEquals("Access denied", analysisResponse.result().errors().get(0).message())
         );
 
         assertAll(

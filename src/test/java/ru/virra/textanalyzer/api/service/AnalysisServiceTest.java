@@ -7,6 +7,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.Authentication;
+import ru.virra.textanalyzer.analysis.application.ExecutionMode;
 import ru.virra.textanalyzer.api.dto.AnalysisRequest;
 import ru.virra.textanalyzer.api.dto.AnalysisResponse;
 import ru.virra.textanalyzer.api.mapper.AnalysisMapper;
@@ -130,7 +131,8 @@ class AnalysisServiceTest {
     @Test
     void shouldCreateEntity() {
 
-        AnalysisRequest request = new AnalysisRequest("texts", 3, 10, "multi", 4);
+        AnalysisRequest request = new AnalysisRequest("texts", 3, 10,
+                ExecutionMode.MULTI, 4, "config/stopwords.txt");
 
         UserEntity user = new UserEntity();
         user.setUsername("User");
@@ -158,11 +160,12 @@ class AnalysisServiceTest {
                 () -> assertEquals("texts", savedAnalysis.getDirectory()),
                 () -> assertEquals(3, savedAnalysis.getMinWordLength()),
                 () -> assertEquals(10, savedAnalysis.getTopCount()),
-                () -> assertEquals("multi", savedAnalysis.getMode()),
+                () -> assertEquals(ExecutionMode.MULTI, savedAnalysis.getMode()),
                 () -> assertEquals(4, savedAnalysis.getThreads()),
                 () -> assertEquals(AnalysisStatus.PENDING, savedAnalysis.getStatus()),
                 () -> assertSame(user, savedAnalysis.getUser()),
                 () -> assertNotNull(savedAnalysis.getId()),
+                () -> assertEquals("config/stopwords.txt", savedAnalysis.getStopWords()),
                 () -> assertNotNull(savedAnalysis.getCreatedAt()));
 
 
@@ -175,7 +178,8 @@ class AnalysisServiceTest {
     @Test
     void shouldThrowExceptionWhenUserNotFound() {
 
-        AnalysisRequest request = new AnalysisRequest("texts", 3, 10, "multi", 4);
+        AnalysisRequest request = new AnalysisRequest("texts", 3, 10,
+                ExecutionMode.MULTI, 4, null);
 
         when(authentication.getName()).thenReturn("User");
         when(userRepository.findByUsername("User")).thenReturn(Optional.empty());

@@ -10,6 +10,7 @@ import ru.virra.textanalyzer.analysis.application.AnalysisConfig;
 import ru.virra.textanalyzer.analysis.application.ExecutionMode;
 import ru.virra.textanalyzer.analysis.model.AnalysisInfo;
 import ru.virra.textanalyzer.analysis.model.AnalysisResult;
+import ru.virra.textanalyzer.analysis.model.FileReadError;
 import ru.virra.textanalyzer.analysis.model.WordCount;
 import ru.virra.textanalyzer.persistence.entity.AnalysisEntity;
 import ru.virra.textanalyzer.persistence.entity.AnalysisStatus;
@@ -82,8 +83,9 @@ class AnalysisPersistenceServiceTest {
         analysis.setDirectory("texts");
         analysis.setMinWordLength(3);
         analysis.setTopCount(10);
-        analysis.setMode("multi");
+        analysis.setMode(ExecutionMode.MULTI);
         analysis.setThreads(4);
+        analysis.setStopWords("config/stopwords.txt");
 
         when(analysisRepository.findById(ANALYSIS_ID)).thenReturn(Optional.of(analysis));
 
@@ -93,9 +95,9 @@ class AnalysisPersistenceServiceTest {
                 () -> assertEquals(Path.of("texts"), config.getDirectory()),
                 () -> assertEquals(3, config.getMinLength()),
                 () -> assertEquals(10, config.getTop()),
-                () -> assertEquals(ExecutionMode.fromString("multi"), config.getMode()),
+                () -> assertEquals(ExecutionMode.MULTI, config.getMode()),
                 () -> assertEquals(4, config.getThreads()),
-                () -> assertNull(config.getStopWords()),
+                () -> assertEquals(Path.of("config/stopwords.txt"), config.getStopWords()),
                 () -> assertNull(config.getOutput())
         );
 
@@ -128,7 +130,12 @@ class AnalysisPersistenceServiceTest {
                 new WordCount("собака", 3)
         );
 
-        AnalysisResult analysisResult = new AnalysisResult(info, wordCount, List.of());
+        List<FileReadError> errors = List.of(
+                new FileReadError("broken.txt", "Access denied"),
+                new FileReadError("empty.txt", "Cannot read file")
+        );
+
+        AnalysisResult analysisResult = new AnalysisResult(info, wordCount, errors);
 
         analysisPersistenceService.complete(ANALYSIS_ID, analysisResult);
 
@@ -150,6 +157,15 @@ class AnalysisPersistenceServiceTest {
                 () -> assertEquals(2, savedAnalysis.getWords().get(0).getWordCount()),
                 () -> assertEquals("собака", savedAnalysis.getWords().get(1).getWord()),
                 () -> assertEquals(3, savedAnalysis.getWords().get(1).getWordCount())
+        );
+
+        assertAll(
+                () -> assertEquals("broken.txt", savedAnalysis.getErrors().get(0).getFileName()),
+                () -> assertEquals("Access denied", savedAnalysis.getErrors().get(0).getMessage()),
+                () -> assertEquals("empty.txt", savedAnalysis.getErrors().get(1).getFileName()),
+                () -> assertEquals("Cannot read file", savedAnalysis.getErrors().get(1).getMessage()),
+                () -> assertSame(savedAnalysis, savedAnalysis.getErrors().get(0).getAnalysis()),
+                () -> assertSame(savedAnalysis, savedAnalysis.getErrors().get(1).getAnalysis())
         );
     }
 
