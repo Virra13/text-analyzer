@@ -18,6 +18,12 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Сервис управления анализами через REST API.
+ *
+ * <p>Отвечает за создание новых анализов, сохранение параметров запуска
+ * и получение ранее созданных анализов.</p>
+ */
 @Service
 @RequiredArgsConstructor
 public class AnalysisService {
@@ -26,6 +32,17 @@ public class AnalysisService {
     private final UserRepository userRepository;
     private final AnalysisMapper analysisMapper;
 
+    /**
+     * Создаёт новый анализ и запускает его асинхронное выполнение.
+     *
+     * <p>Параметры запроса и данные авторизованного пользователя
+     * сохраняются в базе данных. Новый анализ создаётся
+     * со статусом {@link AnalysisStatus#PENDING}.</p>
+     *
+     * @param request параметры анализа
+     * @param authentication данные авторизованного пользователя
+     * @return созданный анализ с текущим статусом
+     */
     public AnalysisResponse create(AnalysisRequest request, Authentication authentication) {
 
         AnalysisEntity analysis = new AnalysisEntity();
@@ -56,6 +73,13 @@ public class AnalysisService {
         );
     }
 
+    /**
+     * Возвращает анализ по его идентификатору.
+     *
+     * @param id идентификатор анализа
+     * @return данные и текущий статус анализа
+     * @throws AnalysisNotFoundException если анализ не найден
+     */
     @Transactional(readOnly = true)
     public AnalysisResponse findById(UUID id) {
         AnalysisEntity analysis = analysisRepository.findById(id)
@@ -64,6 +88,11 @@ public class AnalysisService {
         return analysisMapper.toResponse(analysis);
     }
 
+    /**
+     * Возвращает список всех сохранённых анализов.
+     *
+     * @return список анализов
+     */
     @Transactional(readOnly = true)
     public List<AnalysisResponse> findAll() {
         return analysisRepository.findAll().stream()

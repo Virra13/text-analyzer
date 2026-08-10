@@ -13,16 +13,26 @@ import ru.virra.textanalyzer.persistence.entity.AnalysisStatus;
 import java.nio.file.Path;
 import java.util.List;
 
+/**
+ * Преобразует сущности анализа из слоя хранения в модели REST API.
+ */
 @Component
 public class AnalysisMapper {
 
+    /**
+     * Преобразует сохранённый анализ в объект ответа API.
+     *
+     * <p>Если анализ ещё не завершён, возвращает только его идентификатор
+     * и текущий статус. Для завершённого анализа также восстанавливает
+     * информацию об анализе, частоты слов и ошибки обработки файлов.</p>
+     *
+     * @param analysis сущность анализа
+     * @return представление анализа для REST API
+     */
     public AnalysisResponse toResponse(AnalysisEntity analysis) {
+
         if (analysis.getStatus() != AnalysisStatus.COMPLETED) {
-            return new AnalysisResponse(
-                    analysis.getId(),
-                    analysis.getStatus(),
-                    null
-            );
+            return new AnalysisResponse(analysis.getId(), analysis.getStatus(),null);
         }
 
         List<WordCount> words = analysis.getWords().stream()
@@ -49,16 +59,8 @@ public class AnalysisMapper {
                 analysis.getExecutionTimeMs()
         );
 
-        AnalysisResult result = new AnalysisResult(
-                info,
-                words,
-                errors
-        );
+        AnalysisResult result = new AnalysisResult(info, words, errors);
 
-        return new AnalysisResponse(
-                analysis.getId(),
-                analysis.getStatus(),
-                result
-        );
+        return new AnalysisResponse(analysis.getId(), analysis.getStatus(), result);
     }
 }

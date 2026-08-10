@@ -18,12 +18,24 @@ import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+/**
+ * Управляет сохранением состояния и результатов анализа в базе данных.
+ *
+ * <p>Сервис отвечает за изменение статуса анализа, восстановление
+ * конфигурации для выполнения и сохранение итоговых результатов,
+ * включая частоты слов и ошибки обработки файлов.</p>
+ */
 @Service
 @RequiredArgsConstructor
 public class AnalysisPersistenceService {
 
     private final AnalysisRepository analysisRepository;
 
+    /**
+     * Переводит анализ в состояние выполнения.
+     *
+     * @param analysisId идентификатор анализа
+     */
     @Transactional
     public void markRunning(UUID analysisId) {
         AnalysisEntity analysis = analysisRepository.findById(analysisId).orElseThrow();
@@ -32,6 +44,12 @@ public class AnalysisPersistenceService {
         analysisRepository.save(analysis);
     }
 
+    /**
+     * Восстанавливает конфигурацию анализа по сохранённым параметрам.
+     *
+     * @param analysisId идентификатор анализа
+     * @return конфигурация для выполнения анализа
+     */
     @Transactional(readOnly = true)
     public AnalysisConfig getConfig(UUID analysisId) {
         AnalysisEntity analysis = analysisRepository.findById(analysisId).orElseThrow();
@@ -47,6 +65,16 @@ public class AnalysisPersistenceService {
                 .build();
     }
 
+    /**
+     * Сохраняет результат успешно завершённого анализа.
+     *
+     * <p>Сохраняет частоты слов, ошибки обработки файлов,
+     * количество обработанных файлов, время выполнения
+     * и переводит анализ в статус {@link AnalysisStatus#COMPLETED}.</p>
+     *
+     * @param analysisId идентификатор анализа
+     * @param analysisResult результат выполненного анализа
+     */
     @Transactional
     public void complete(UUID analysisId, AnalysisResult analysisResult) {
         AnalysisEntity analysis = analysisRepository.findById(analysisId).orElseThrow();
@@ -74,6 +102,11 @@ public class AnalysisPersistenceService {
         analysisRepository.save(analysis);
     }
 
+    /**
+     * Переводит анализ в состояние ошибки.
+     *
+     * @param analysisId идентификатор анализа
+     */
     @Transactional
     public void markFailed(UUID analysisId) {
         analysisRepository.findById(analysisId).ifPresent(analysis -> {

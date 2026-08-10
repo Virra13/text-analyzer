@@ -91,12 +91,12 @@ class AnalysisMapperTest {
 
         assertAll(
                 () -> assertEquals("texts", analysisResponse.result().analysisInfo().directory().toString()),
-                () -> assertEquals(3,analysisResponse.result().analysisInfo().minWordLength()),
-                () -> assertEquals(10,analysisResponse.result().analysisInfo().topCount()),
-                () -> assertEquals(ExecutionMode.MULTI,analysisResponse.result().analysisInfo().mode()),
-                () -> assertEquals(4,analysisResponse.result().analysisInfo().threads()),
-                () -> assertEquals(3,analysisResponse.result().analysisInfo().processedFiles()),
-                () -> assertEquals(7L,analysisResponse.result().analysisInfo().executionTimeMs())
+                () -> assertEquals(3, analysisResponse.result().analysisInfo().minWordLength()),
+                () -> assertEquals(10, analysisResponse.result().analysisInfo().topCount()),
+                () -> assertEquals(ExecutionMode.MULTI, analysisResponse.result().analysisInfo().mode()),
+                () -> assertEquals(4, analysisResponse.result().analysisInfo().threads()),
+                () -> assertEquals(3, analysisResponse.result().analysisInfo().processedFiles()),
+                () -> assertEquals(7L, analysisResponse.result().analysisInfo().executionTimeMs())
         );
     }
 }

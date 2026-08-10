@@ -13,11 +13,12 @@ import java.util.*;
 import java.util.concurrent.*;
 
 /**
- * Читает и анализирует текстовые файлы параллельно с использованием пула потоков.
+ * Выполняет анализ текстовых файлов в многопоточном режиме.
  *
- * <p>Для каждого файла создаётся отдельная задача. Каждая задача формирует
- * независимый результат анализа, после чего результаты объединяются
- * в управляющем потоке.</p>
+ * <p>Для каждого файла создаётся отдельная задача, выполняемая через общий
+ * пул потоков. Количество одновременно выполняемых задач одного анализа
+ * ограничивается параметром {@code threads}. Результаты отдельных файлов
+ * объединяются в управляющем потоке после завершения задач.</p>
  */
 @Slf4j
 @Component("multi")
@@ -28,6 +29,20 @@ public class MultiThreadAnalysisProcessor implements AnalysisProcessor {
     private final Analyzer analyzer;
     private final ExecutorService analysisExecutor;
 
+    /**
+     * Выполняет параллельную обработку переданных файлов.
+     *
+     * <p>Запускает не более {@code threads} задач одновременно, получает
+     * результаты по мере их завершения и объединяет их в общий результат.
+     * Ошибки обработки отдельных файлов сохраняются отдельно и не прерывают
+     * обработку остальных файлов.</p>
+     *
+     * @param files файлы для обработки
+     * @param stopWords стоп-слова, исключаемые из анализа
+     * @param minLength минимальная длина учитываемого слова
+     * @param threads максимальное количество одновременно выполняемых задач
+     * @return объединённый результат обработки файлов
+     */
     @Override
     public ProcessingResult process(Collection<Path> files, Set<String> stopWords, int minLength, int threads) {
         log.info("Starting multi-threaded processing of {} files using {} workers", files.size(), threads);
@@ -72,6 +87,17 @@ public class MultiThreadAnalysisProcessor implements AnalysisProcessor {
         }
     }
 
+    /**
+     * Выполняет чтение и анализ одного файла.
+     *
+     * <p>При ожидаемой ошибке обработки файла возвращает результат,
+     * содержащий описание ошибки, не прерывая весь анализ.</p>
+     *
+     * @param file обрабатываемый файл
+     * @param stopWords стоп-слова, исключаемые из анализа
+     * @param minLength минимальная длина учитываемого слова
+     * @return результат обработки одного файла
+     */
     private FileProcessingResult processFile(Path file, Set<String> stopWords, int minLength) {
         log.debug("Processing file in worker thread: {}", file);
 
@@ -91,6 +117,12 @@ public class MultiThreadAnalysisProcessor implements AnalysisProcessor {
         }
     }
 
+    /**
+     * Добавляет частоты слов из локального результата в общий результат анализа.
+     *
+     * @param result общий результат анализа
+     * @param localResult результат обработки отдельного файла
+     */
     private void merge(Map<String, Integer> result, Map<String, Integer> localResult) {
         for (Map.Entry<String, Integer> entry : localResult.entrySet()) {
             result.merge(
@@ -101,6 +133,13 @@ public class MultiThreadAnalysisProcessor implements AnalysisProcessor {
         }
     }
 
+    /**
+     * Хранит состояние выполнения одного многопоточного анализа.
+     *
+     * <p>Управляет очередью файлов, отправленными задачами и получением
+     * результатов через {@link CompletionService}. Состояние каждой сессии
+     * независимо от других одновременно выполняемых анализов.</p>
+     */
     private class ProcessingSession {
 
         private final CompletionService<FileProcessingResult> completionService;
@@ -119,12 +158,25 @@ public class MultiThreadAnalysisProcessor implements AnalysisProcessor {
             this.fileCount = files.size();
         }
 
+        /**
+         * Запускает начальный набор задач обработки файлов.
+         *
+         * @param threads максимальное количество одновременно запущенных задач
+         */
         private void start(int threads) {
             for (int i = 0; i < threads && iterator.hasNext(); i++) {
                 submitNext();
             }
         }
 
+        /**
+         * Получает результаты задач по мере их завершения и формирует
+         * общий результат анализа.
+         *
+         * @return объединённый результат обработки файлов
+         * @throws InterruptedException если поток ожидания был прерван
+         * @throws ExecutionException если задача завершилась неожиданной ошибкой
+         */
         private ProcessingResult collectResults() throws InterruptedException, ExecutionException {
             Map<String, Integer> result = new HashMap<>();
             Map<Path, String> readErrors = new HashMap<>();
@@ -150,6 +202,9 @@ public class MultiThreadAnalysisProcessor implements AnalysisProcessor {
             return new ProcessingResult(result, readErrors, processedFiles);
         }
 
+        /**
+         * Отправляет следующий файл на обработку в общий пул потоков.
+         */
         private void submitNext() {
             Path file = iterator.next();
 
@@ -162,6 +217,9 @@ public class MultiThreadAnalysisProcessor implements AnalysisProcessor {
             submittedTasks.add(future);
         }
 
+        /**
+         * Отменяет незавершённые задачи текущего анализа.
+         */
         private void cancelTasks() {
             int cancelledTasks = 0;
             for (Future<FileProcessingResult> task : submittedTasks) {
